@@ -44,6 +44,10 @@ export class Vault {
         return this.config.vaultToken;
     }
 
+    set token(token: string | undefined) {
+        this.config.vaultToken = token;
+    }
+
     private async request(method: VaultHTTPMethods, path: string | string[], body: any, acceptedReturnCodes: number[] = [200, 204]): Promise<any> {
         if (typeof path === "string") {
             path = [path];
