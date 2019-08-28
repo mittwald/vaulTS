@@ -4,11 +4,11 @@ import {resolveURL} from "./util";
 export type VaultHTTPMethods = "GET" | "POST" | "DELETE" | "LIST";
 
 export interface IVaultConfig {
-    vaultAddress: string;
+    vaultAddress?: string;
     vaultToken?: string;
     vaultCaCertificate?: string;
     vaultNamespace?: string;
-    apiVersion: string;
+    apiVersion?: string;
 }
 
 export interface IGlobalVaultError {
@@ -46,7 +46,7 @@ export class Vault {
     }
 
     private async request(method: VaultHTTPMethods, path: string, body: any, acceptedReturnCodes: number[] = [200, 204]): Promise<any> {
-        const uri: URL = resolveURL(this.config.vaultAddress, this.config.apiVersion, path);
+        const uri: URL = resolveURL(this.config.vaultAddress!, this.config.apiVersion!, path);
 
         const requestOptions: request.Options = {
             method: method,
@@ -59,6 +59,7 @@ export class Vault {
             json: true,
             // vault health endpoint responds with >400 status code
             simple: false,
+            resolveWithFullResponse: true
         };
 
         const res = await request(requestOptions);
@@ -74,25 +75,25 @@ export class Vault {
                     body: res.body,
                 }
             }
-            throw new VaultResponseError(`Request to ${requestOptions.uri.toString()} failed (Status ${errorResponse.statusCode}`, errorResponse);
+            throw new VaultResponseError(`Request to ${requestOptions.uri.toString()} failed (Status ${errorResponse.statusCode})`, errorResponse);
         }
 
         return res.body;
     }
 
-    public read(path: string, acceptedReturnCodes?: number[]) {
+    public async read(path: string, acceptedReturnCodes?: number[]): Promise<any> {
         return this.request('GET', path, {}, acceptedReturnCodes);
     }
 
-    public write(path: string, acceptedReturnCodes?: number[]) {
+    public async write(path: string, acceptedReturnCodes?: number[]): Promise<any> {
         return this.request('POST', path, {}, acceptedReturnCodes);
     }
 
-    public delete(path: string, acceptedReturnCodes?: number[]) {
+    public async delete(path: string, acceptedReturnCodes?: number[]): Promise<any> {
         return this.request('DELETE', path, {}, acceptedReturnCodes);
     }
 
-    public list(path: string, acceptedReturnCodes?: number[]) {
+    public async list(path: string, acceptedReturnCodes?: number[]): Promise<any> {
         return this.request('LIST', path, {}, acceptedReturnCodes);
     }
 }
