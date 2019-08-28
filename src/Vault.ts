@@ -1,5 +1,6 @@
 import request from 'request-promise-native';
 import {resolveURL} from "./util";
+import {VaultHealthClient} from "./sys/VaultHealthClient";
 
 export type VaultHTTPMethods = "GET" | "POST" | "DELETE" | "LIST";
 
@@ -11,26 +12,24 @@ export interface IVaultConfig {
     apiVersion?: string;
 }
 
-export interface IGlobalVaultError {
-    errors: string[];
-}
-
 export class VaultError extends Error {
 }
 
-export interface VaultErrorResponse {
+export interface IVaultErrorResponse {
     statusCode: number;
-    body?: IGlobalVaultError;
+    body?: {
+        errors: string[];
+    };
 }
 
-export class VaultResponseError extends VaultError {
-    constructor(message: string, public response: VaultErrorResponse) {
+export class VaultRequestError extends VaultError {
+    constructor(message: string, private response: IVaultErrorResponse) {
         super(message);
     }
 }
 
 export class Vault {
-    private config: IVaultConfig;
+    readonly config: IVaultConfig;
 
     constructor(userConfig?: IVaultConfig) {
         this.config = {
@@ -45,8 +44,11 @@ export class Vault {
         return this.config.vaultToken;
     }
 
-    private async request(method: VaultHTTPMethods, path: string, body: any, acceptedReturnCodes: number[] = [200, 204]): Promise<any> {
-        const uri: URL = resolveURL(this.config.vaultAddress!, this.config.apiVersion!, path);
+    private async request(method: VaultHTTPMethods, path: string | string[], body: any, acceptedReturnCodes: number[] = [200, 204]): Promise<any> {
+        if (typeof path === "string") {
+            path = [path];
+        }
+        const uri: URL = resolveURL(this.config.vaultAddress!, this.config.apiVersion!, ...path);
 
         const requestOptions: request.Options = {
             method: method,
@@ -65,7 +67,7 @@ export class Vault {
         const res = await request(requestOptions);
 
         if (!acceptedReturnCodes.some(c => c == res.statusCode)) {
-            let errorResponse: VaultErrorResponse = {
+            let errorResponse: IVaultErrorResponse = {
                 statusCode: res.statusCode,
             };
 
@@ -75,25 +77,29 @@ export class Vault {
                     body: res.body,
                 }
             }
-            throw new VaultResponseError(`Request to ${requestOptions.uri.toString()} failed (Status ${errorResponse.statusCode})`, errorResponse);
+            throw new VaultRequestError(`Request to ${requestOptions.uri.toString()} failed (Status ${errorResponse.statusCode})`, errorResponse);
         }
 
         return res.body;
     }
 
-    public async read(path: string, acceptedReturnCodes?: number[]): Promise<any> {
+    public async read(path: string | string[], acceptedReturnCodes?: number[]): Promise<any> {
         return this.request('GET', path, {}, acceptedReturnCodes);
     }
 
-    public async write(path: string, acceptedReturnCodes?: number[]): Promise<any> {
-        return this.request('POST', path, {}, acceptedReturnCodes);
+    public async write(path: string | string[], body: any, acceptedReturnCodes?: number[]): Promise<any> {
+        return this.request('POST', path, body, acceptedReturnCodes);
     }
 
-    public async delete(path: string, acceptedReturnCodes?: number[]): Promise<any> {
-        return this.request('DELETE', path, {}, acceptedReturnCodes);
+    public async delete(path: string | string[], body: any, acceptedReturnCodes?: number[]): Promise<any> {
+        return this.request('DELETE', path, body, acceptedReturnCodes);
     }
 
-    public async list(path: string, acceptedReturnCodes?: number[]): Promise<any> {
+    public async list(path: string | string[], acceptedReturnCodes?: number[]): Promise<any> {
         return this.request('LIST', path, {}, acceptedReturnCodes);
+    }
+
+    public Health(): VaultHealthClient {
+        return new VaultHealthClient(this, '/sys');
     }
 }
