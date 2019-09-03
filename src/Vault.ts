@@ -1,6 +1,7 @@
 import request from 'request-promise-native';
 import {resolveURL} from "./util";
 import {VaultHealthClient} from "./sys/VaultHealthClient";
+import {TransitVaultClient} from "./engines/transit";
 
 export type VaultHTTPMethods = "GET" | "POST" | "DELETE" | "LIST";
 
@@ -101,5 +102,9 @@ export class Vault {
 
     public Health(): VaultHealthClient {
         return new VaultHealthClient(this, '/sys');
+    }
+
+    public transit(mountPoint?: string) {
+        return new TransitVaultClient(this, mountPoint);
     }
 }
