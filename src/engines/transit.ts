@@ -70,10 +70,10 @@ export class TransitVaultClient extends AbstractVaultClient {
     public async encrypt(key: string, options: ITransitEncryptOptionsBatch): Promise<ITransitEncryptResponseBatch>;
     public async encrypt(key: string, options: ITransitEncryptOptionsSingle | ITransitEncryptOptionsBatch): Promise<ITransitEncryptResponseSingle | ITransitEncryptResponseBatch> {
         return this.rawWrite(["encrypt", key], options).then( res => {
-            try {
-                transitChecker.ITransitEncryptResponseSingle.check(res);
-            } catch (e) {
+            if ("batch_input" in options) {
                 transitChecker.ITransitEncryptResponseBatch.check(res);
+            } else {
+                transitChecker.ITransitEncryptResponseSingle.check(res);
             }
             return res;
         });
@@ -83,10 +83,10 @@ export class TransitVaultClient extends AbstractVaultClient {
     public async decrypt(key: string, options: ITransitDecryptOptionsBatch): Promise<ITransitDecryptResponseBatch>;
     public async decrypt(key: string, options: ITransitDecryptOptionsSingle | ITransitDecryptOptionsBatch): Promise<ITransitDecryptResponseSingle | ITransitDecryptResponseBatch> {
         return this.rawWrite(["decrypt", key], options).then( res => {
-            try {
-                transitChecker.ITransitDecryptResponseSingle.check(res);
-            } catch (e) {
+            if ("batch_input" in options) {
                 transitChecker.ITransitDecryptResponseBatch.check(res);
+            } else {
+                transitChecker.ITransitDecryptResponseSingle.check(res);
             }
             return res;
         });
