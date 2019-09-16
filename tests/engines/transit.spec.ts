@@ -5,7 +5,7 @@ describe("Transit Vault Client Integration Test (requires running vault instance
     let client: TransitVaultClient;
     beforeAll(async () => {
         const vault = new Vault();
-        client = vault.transit();
+        client = vault.Transit();
     });
 
     test("successfully create and read key", async () => {

@@ -104,7 +104,7 @@ export class Vault {
         return new VaultHealthClient(this, '/sys');
     }
 
-    public transit(mountPoint?: string) {
+    public Transit(mountPoint?: string) {
         return new TransitVaultClient(this, mountPoint);
     }
 }
