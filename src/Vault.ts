@@ -1,12 +1,14 @@
 import request from 'request-promise-native';
 import {resolveURL} from "./util";
 import {VaultHealthClient} from "./sys/VaultHealthClient";
+import {VaultKubernetesAuthClient} from "./auth/kubernetes";
 
 export type VaultHTTPMethods = "GET" | "POST" | "DELETE" | "LIST";
 
 export interface IVaultConfig {
     vaultAddress?: string;
     vaultToken?: string;
+    vaultTokenAccessor?: string;
     vaultCaCertificate?: string;
     vaultNamespace?: string;
     apiVersion?: string;
@@ -105,5 +107,9 @@ export class Vault {
 
     public Health(): VaultHealthClient {
         return new VaultHealthClient(this, '/sys');
+    }
+
+    public KubernetesAuth(): VaultKubernetesAuthClient {
+        return new VaultKubernetesAuthClient(this);
     }
 }

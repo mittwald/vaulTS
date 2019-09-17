@@ -1,6 +1,3 @@
-import {AbstractVaultClient} from "../VaultClient";
-import {Vault} from "../Vault";
-
 export interface IVaultKubernetesAuthConfig {
     kubernetes_host: string;
     kubernetes_ca_cert?: string;
@@ -10,7 +7,8 @@ export interface IVaultKubernetesAuthConfig {
 
 export interface IVaultKubernetesAuthLoginConfig {
     role: string;
-    jwt: string;
+    jwt?: string;
+    jwt_path?: string;
 }
 
 export interface IVaultKubernetesAuthLoginResponseMetadata {
@@ -29,15 +27,5 @@ export interface IVaultKubernetesAuthLoginResponse {
         metadata: IVaultKubernetesAuthLoginResponseMetadata;
         lease_duration: number;
         renewable: boolean;
-    }
-}
-
-export class VaultKubernetesAuthClient extends AbstractVaultClient {
-    constructor(vault: Vault, mountPoint: string) {
-        super(vault, mountPoint);
-    }
-
-    public async login(payload: IVaultKubernetesAuthLoginConfig): Promise<IVaultKubernetesAuthLoginResponse> {
-        return this.write('/login', payload);
     }
 }
