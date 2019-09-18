@@ -18,14 +18,3 @@ export interface IVaultKubernetesAuthLoginResponseMetadata {
     service_account_secret_name: string;
     service_account_uid: string;
 }
-
-export interface IVaultKubernetesAuthLoginResponse {
-    auth: {
-        client_token: string;
-        accessor: string;
-        policies: string[];
-        metadata: IVaultKubernetesAuthLoginResponseMetadata;
-        lease_duration: number;
-        renewable: boolean;
-    }
-}
