@@ -38,6 +38,7 @@ jest:
     VAULT_TOKEN: "test"
     VAULT_DEV_ROOT_TOKEN_ID: "test"
   script:
+    - while ! nc -z vault 8200; do sleep 0.5; done;
     - yarn compile
     - yarn test
 
