@@ -38,7 +38,7 @@ jest:
     VAULT_TOKEN: "test"
     VAULT_DEV_ROOT_TOKEN_ID: "test"
   script:
-    - while ! nc -z vault 8200; do sleep 0.5; done;
+    - "while ! curl -v -H 'X-Vault-Token: ${VAULT_TOKEN}' http://vault:8200/v1/transit; do sleep 0.5; done;"
     - yarn compile
     - yarn test
 
