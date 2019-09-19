@@ -22,6 +22,8 @@ jest:
   stage: test
   services:
     - vault
+  variables:
+    VAULT_ADDR: vault
   script:
     - yarn compile
     - yarn test
