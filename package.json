@@ -6,6 +6,8 @@
   "types": "index.d.ts",
   "scripts": {
     "test": "VAULT_TOKEN=test jest",
+    "lint": "tslint --project tsconfig.json",
+    "compile": "yarn build",
     "build": "find src -name \"*types.ts\" -exec npx ts-interface-builder --ignore-index-signature {} \\; && tsc",
     "cli": "node dist/cli.js"
   },
