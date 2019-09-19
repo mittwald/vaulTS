@@ -1,6 +1,7 @@
 import request from 'request-promise-native';
 import {resolveURL} from "./util";
 import {VaultHealthClient} from "./sys/VaultHealthClient";
+import {TransitVaultClient} from "./engines/transit";
 import {VaultKubernetesAuthClient} from "./auth/kubernetes";
 import {IVaultAuthProvider, VaultTokenClient} from "./auth/token";
 import {IVaultKubernetesAuthLoginConfig} from "./auth/kubernetes_types";
@@ -111,6 +112,10 @@ export class Vault extends EventEmitter {
 
     public Health(): VaultHealthClient {
         return new VaultHealthClient(this, '/sys');
+    }
+
+    public Transit(mountPoint?: string) {
+        return new TransitVaultClient(this, mountPoint);
     }
 
     public KubernetesAuth(config?: IVaultKubernetesAuthLoginConfig, mountPoint?: string): VaultKubernetesAuthClient {

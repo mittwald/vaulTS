@@ -5,6 +5,5 @@ describe("Vault Integration Test (requires running vault instance)", () => {
         const client = new Vault();
 
         const res = await client.Health().health();
-        console.log(JSON.stringify(res));
     });
 });
