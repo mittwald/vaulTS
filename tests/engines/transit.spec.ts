@@ -1,5 +1,5 @@
-import {Vault} from "../../src/Vault";
-import {TransitVaultClient} from "../../src/engines/transit";
+import {Vault} from "../../src";
+import {TransitVaultClient} from "../../src";
 
 describe("Transit Vault Client Integration Test (requires running vault instance)", () => {
     let client: TransitVaultClient;
