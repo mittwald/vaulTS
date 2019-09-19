@@ -47,6 +47,14 @@ export class TransitVaultClient extends AbstractVaultClient {
         return this.rawDelete(["keys", key]);
     }
 
+    public async forceDelete(key: string): Promise<void> {
+        if (!await this.keyExists(key)) {
+            return;
+        }
+        await this.update(key, {deletion_allowed: true});
+        await this.delete(key);
+    };
+
     public async update(key: string, options: ITransitUpdateOptions): Promise<void> {
         return this.rawWrite(["keys", key, "config"], options);
     }
@@ -64,6 +72,15 @@ export class TransitVaultClient extends AbstractVaultClient {
             transitChecker.ITransitExportResponse.check(res);
             return res;
         });
+    }
+
+    public async keyExists(key: string): Promise<boolean> {
+        const keys = await this.list();
+        const exists = keys.data.keys.find(k => k === key);
+        if (exists) {
+            return true;
+        }
+        return false;
     }
 
     public async encrypt(key: string, options: ITransitEncryptOptionsSingle): Promise<ITransitEncryptResponseSingle>;
