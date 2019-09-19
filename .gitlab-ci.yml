@@ -23,7 +23,7 @@ jest:
   services:
     - vault
   variables:
-    VAULT_ADDR: vault
+    VAULT_ADDR: "http://vault:8200"
   script:
     - yarn compile
     - yarn test
