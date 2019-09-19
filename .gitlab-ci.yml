@@ -1,0 +1,26 @@
+before_script:
+  - curl https://gitlab.mittwald.it/snippets/10/raw | bash
+
+cache:
+  paths:
+    - node_modules/
+
+typescript-compile:
+  image: node:10.16
+  stage: build
+  script:
+    - yarn compile
+
+tslint:
+  image: node:10.16
+  stage: test
+  script:
+    - yarn lint
+
+jest:
+  image: node:10.16
+  stage: test
+  services:
+    - vault
+  script:
+    - yarn test
