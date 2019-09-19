@@ -23,8 +23,7 @@ jest:
   services:
     - vault
   script:
-    - yarn compile
-    - yarn test
+    - yarn compile && yarn test
 
 registry-publish:
   stage: deploy
