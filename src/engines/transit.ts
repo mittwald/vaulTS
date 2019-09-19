@@ -1,5 +1,7 @@
-import {AbstractVaultClient} from "../VaultClient";
+import {createCheckers} from "ts-interface-checker";
+import transitTi from "../../src/engines/transit_types-ti";
 import {Vault} from "../Vault";
+import {AbstractVaultClient} from "../VaultClient";
 import {
     ITransitCreateOptions,
     ITransitDecryptOptionsBatch,
@@ -12,10 +14,8 @@ import {
     ITransitExportResponse,
     ITransitListResponse,
     ITransitReadResponse,
-    ITransitUpdateOptions
+    ITransitUpdateOptions,
 } from "./transit_types";
-import transitTi from "../../src/engines/transit_types-ti";
-import {createCheckers} from "ts-interface-checker";
 
 const transitChecker = createCheckers(transitTi);
 
@@ -30,14 +30,14 @@ export class TransitVaultClient extends AbstractVaultClient {
     }
 
     public async read(key: string): Promise<ITransitReadResponse> {
-        return this.rawRead(["keys", key]).then(res => {
+        return this.rawRead(["keys", key]).then((res) => {
             transitChecker.ITransitReadResponse.check(res);
             return res;
         });
     }
 
     public async list(): Promise<ITransitListResponse> {
-        return this.rawList(["keys"]).then(res => {
+        return this.rawList(["keys"]).then((res) => {
             transitChecker.ITransitListResponse.check(res);
             return res;
         });
@@ -53,7 +53,7 @@ export class TransitVaultClient extends AbstractVaultClient {
         }
         await this.update(key, {deletion_allowed: true});
         await this.delete(key);
-    };
+    }
 
     public async update(key: string, options: ITransitUpdateOptions): Promise<void> {
         return this.rawWrite(["keys", key, "config"], options);
@@ -64,11 +64,11 @@ export class TransitVaultClient extends AbstractVaultClient {
     }
 
     public async export(key: string, options: ITransitExportOptions): Promise<ITransitExportResponse> {
-        let parts = ["export", options.key_type, key];
+        const parts = ["export", options.key_type, key];
         if (options.version) {
             parts.push(options.version);
         }
-        return this.rawRead(parts).then(res => {
+        return this.rawRead(parts).then((res) => {
             transitChecker.ITransitExportResponse.check(res);
             return res;
         });
@@ -76,7 +76,7 @@ export class TransitVaultClient extends AbstractVaultClient {
 
     public async keyExists(key: string): Promise<boolean> {
         const keys = await this.list();
-        const exists = keys.data.keys.find(k => k === key);
+        const exists = keys.data.keys.find((k) => k === key);
         if (exists) {
             return true;
         }
@@ -86,7 +86,7 @@ export class TransitVaultClient extends AbstractVaultClient {
     public async encrypt(key: string, options: ITransitEncryptOptionsSingle): Promise<ITransitEncryptResponseSingle>;
     public async encrypt(key: string, options: ITransitEncryptOptionsBatch): Promise<ITransitEncryptResponseBatch>;
     public async encrypt(key: string, options: ITransitEncryptOptionsSingle | ITransitEncryptOptionsBatch): Promise<ITransitEncryptResponseSingle | ITransitEncryptResponseBatch> {
-        return this.rawWrite(["encrypt", key], options).then( res => {
+        return this.rawWrite(["encrypt", key], options).then( (res) => {
             if ("batch_input" in options) {
                 transitChecker.ITransitEncryptResponseBatch.check(res);
             } else {
@@ -99,7 +99,7 @@ export class TransitVaultClient extends AbstractVaultClient {
     public async decrypt(key: string, options: ITransitDecryptOptionsSingle): Promise<ITransitDecryptResponseSingle>;
     public async decrypt(key: string, options: ITransitDecryptOptionsBatch): Promise<ITransitDecryptResponseBatch>;
     public async decrypt(key: string, options: ITransitDecryptOptionsSingle | ITransitDecryptOptionsBatch): Promise<ITransitDecryptResponseSingle | ITransitDecryptResponseBatch> {
-        return this.rawWrite(["decrypt", key], options).then( res => {
+        return this.rawWrite(["decrypt", key], options).then( (res) => {
             if ("batch_input" in options) {
                 transitChecker.ITransitDecryptResponseBatch.check(res);
             } else {
@@ -111,10 +111,10 @@ export class TransitVaultClient extends AbstractVaultClient {
 
     public async encryptText(key: string, plaintext: string): Promise<string> {
         const base64 = Buffer.from(plaintext).toString("base64");
-        return this.encrypt(key, {plaintext: base64}).then(res => res.data.ciphertext);
+        return this.encrypt(key, {plaintext: base64}).then((res) => res.data.ciphertext);
     }
 
     public async decryptText(key: string, ciphertext: string): Promise<string> {
-        return this.decrypt(key, {ciphertext}).then(res => Buffer.from(res.data.plaintext, "base64").toString());
+        return this.decrypt(key, {ciphertext}).then((res) => Buffer.from(res.data.plaintext, "base64").toString());
     }
 }

@@ -1,5 +1,5 @@
-import {AbstractVaultClient} from "../VaultClient";
 import {Vault} from "../Vault";
+import {AbstractVaultClient} from "../VaultClient";
 
 export interface IVaultHealthResponse {
     initialized: boolean;
@@ -24,6 +24,6 @@ export class VaultHealthClient extends AbstractVaultClient {
      * Throws an VaultRequestError if vault is unhealthy
      */
     public async health(): Promise<IVaultHealthResponse> {
-        return this.rawRead(['/health']);
+        return this.rawRead(["/health"]);
     }
 }

@@ -16,5 +16,5 @@ export interface IVaultTokenAuthResponse<T> {
         metadata: T;
         lease_duration: number;
         renewable: boolean;
-    }
+    };
 }

@@ -1,5 +1,5 @@
-import {AbstractVaultClient} from "../VaultClient";
 import {Vault} from "../Vault";
+import {AbstractVaultClient} from "../VaultClient";
 import {IVaultTokenAuthResponse, IVaultTokenRenewOptions, IVaultTokenRenewSelfOptions} from "./token_types";
 
 export class VaultTokenClient extends AbstractVaultClient {
@@ -18,13 +18,13 @@ export class VaultTokenClient extends AbstractVaultClient {
     }
 
     public async renew(options?: IVaultTokenRenewOptions): Promise<IVaultTokenAuthResponse<any>> {
-        return this.rawWrite(['/renew'], options);
+        return this.rawWrite(["/renew"], options);
     }
 
     public async renewSelf(options?: IVaultTokenRenewSelfOptions, authProviderFallback: boolean = false): Promise<IVaultTokenAuthResponse<any>> {
         let newState: IVaultTokenAuthResponse<any>;
         try {
-            newState = await this.rawWrite(['/renew-self'], options);
+            newState = await this.rawWrite(["/renew-self"], options);
         } catch (e) {
             if (!this.authProvider || !authProviderFallback) {
                 throw e;
@@ -38,19 +38,19 @@ export class VaultTokenClient extends AbstractVaultClient {
         return this.state;
     }
 
+    public async enableAutoRenew(): Promise<IVaultTokenAuthResponse<any>> {
+        return this.autoRenew();
+    }
+
     private async autoRenew(): Promise<IVaultTokenAuthResponse<any>> {
         return this.renewSelf(undefined, true)
             .then((res) => {
                 setTimeout(this.autoRenew.bind(this), (this.expires!.getTime() - new Date().getTime()));
                 return res;
-            }).catch(e => {
-                this.vault.emit('error', e);
+            }).catch((e) => {
+                this.vault.emit("error", e);
                 throw e;
             });
-    }
-
-    public async enableAutoRenew(): Promise<IVaultTokenAuthResponse<any>> {
-        return this.autoRenew();
     }
 }
 

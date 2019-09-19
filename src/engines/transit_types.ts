@@ -1,14 +1,14 @@
 
 export type ITransitKeyType = "aes256-gcm96" | "chacha20-poly1305" | "d25519" | "ecdsa-p256" | "rsa-2048" | "rsa-4096";
 
-export type ITransitBatchPlaintext = {
+export type ITransitBatchPlaintext = Array<{
     plaintext: string;
     context?: string;
-}[];
-export type ITransitBatchCiphertext = {
+}>;
+export type ITransitBatchCiphertext = Array<{
     ciphertext: string;
     context?: string;
-}[];
+}>;
 
 export interface ITransitCreateOptions {
     convergent_encryption?: boolean;
@@ -111,11 +111,11 @@ export interface ITransitDecryptOptionsBatch {
 export interface ITransitDecryptResponseSingle {
     data: {
         plaintext: string;
-    }
+    };
 }
 
 export interface ITransitDecryptResponseBatch {
     data: {
         batch_results: ITransitBatchPlaintext;
-    }
+    };
 }

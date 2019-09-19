@@ -1,9 +1,9 @@
-import {AbstractVaultClient} from "../VaultClient";
+import {promises as fs} from "fs";
 import {Vault} from "../Vault";
-import {promises as fs} from 'fs';
+import {AbstractVaultClient} from "../VaultClient";
 import {
     IVaultKubernetesAuthLoginConfig,
-    IVaultKubernetesAuthLoginResponseMetadata
+    IVaultKubernetesAuthLoginResponseMetadata,
 } from "./kubernetes_types";
 import {IVaultAuthProvider} from "./token";
 import {IVaultTokenAuthResponse} from "./token_types";
@@ -17,14 +17,6 @@ export class VaultKubernetesAuthClient extends AbstractVaultClient implements IV
         this.config = config;
     }
 
-    private async initConfig(config: IVaultKubernetesAuthLoginConfig) {
-        if (!config.jwt) {
-            config.jwt = await fs.readFile(config.jwt_path || "/run/secrets/kubernetes.io/serviceaccount/token", "utf8");
-            delete config.jwt_path;
-        }
-        this.config = config;
-    }
-
     public async auth(): Promise<IVaultTokenAuthResponse<IVaultKubernetesAuthLoginResponseMetadata>> {
         if (!this.config) {
             throw new Error("Kubernetes Auth Client not configured");
@@ -32,7 +24,7 @@ export class VaultKubernetesAuthClient extends AbstractVaultClient implements IV
         if (!this.config.jwt) {
             await this.initConfig(this.config);
         }
-        return this.rawWrite(['/login'], this.config);
+        return this.rawWrite(["/login"], this.config);
     }
 
     public async login(config?: IVaultKubernetesAuthLoginConfig): Promise<IVaultTokenAuthResponse<IVaultKubernetesAuthLoginResponseMetadata>> {
@@ -42,4 +34,11 @@ export class VaultKubernetesAuthClient extends AbstractVaultClient implements IV
         return this.auth();
     }
 
+    private async initConfig(config: IVaultKubernetesAuthLoginConfig) {
+        if (!config.jwt) {
+            config.jwt = await fs.readFile(config.jwt_path || "/run/secrets/kubernetes.io/serviceaccount/token", "utf8");
+            delete config.jwt_path;
+        }
+        this.config = config;
+    }
 }
