@@ -27,7 +27,7 @@ jest:
     VAULT_TOKEN: "test"
     VAULT_DEV_ROOT_TOKEN_ID: "test"
   script:
-    - "curl -H 'X-Vault-Token: ${VAULT_DEV_ROOT_TOKEN_ID}' -X POST -d '{"type":"transit"}' http://vault:8200/v1/sys/mounts/transit"
+    - "curl -H 'X-Vault-Token: ${VAULT_DEV_ROOT_TOKEN_ID}' -X POST -d '{\"type\":\"transit\"}' http://vault:8200/v1/sys/mounts/transit"
     - yarn compile
     - yarn test
 
