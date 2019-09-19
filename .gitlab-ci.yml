@@ -23,4 +23,15 @@ jest:
   services:
     - vault
   script:
-    - yarn test
+    - yarn compile && yarn test
+
+registry-publish:
+  stage: deploy
+  image: node:10.16
+  script:
+    - npm version from-git
+    - yarn compile
+    - cd dist/
+    - npm publish
+  only:
+    - tags
