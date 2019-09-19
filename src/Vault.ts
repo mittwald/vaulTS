@@ -2,12 +2,17 @@ import request from 'request-promise-native';
 import {resolveURL} from "./util";
 import {VaultHealthClient} from "./sys/VaultHealthClient";
 import {TransitVaultClient} from "./engines/transit";
+import {VaultKubernetesAuthClient} from "./auth/kubernetes";
+import {IVaultAuthProvider, VaultTokenClient} from "./auth/token";
+import {IVaultKubernetesAuthLoginConfig} from "./auth/kubernetes_types";
+import {EventEmitter} from 'events';
 
 export type VaultHTTPMethods = "GET" | "POST" | "DELETE" | "LIST";
 
 export interface IVaultConfig {
     vaultAddress?: string;
     vaultToken?: string;
+    vaultTokenAccessor?: string;
     vaultCaCertificate?: string;
     vaultNamespace?: string;
     apiVersion?: string;
@@ -29,10 +34,12 @@ export class VaultRequestError extends VaultError {
     }
 }
 
-export class Vault {
+export class Vault extends EventEmitter {
     readonly config: IVaultConfig;
+    private tokenClient?: VaultTokenClient;
 
     constructor(userConfig?: IVaultConfig) {
+        super();
         this.config = {
             vaultAddress: process.env.VAULT_ADDR || "http://127.0.0.1:8200",
             apiVersion: "v1",
@@ -42,6 +49,9 @@ export class Vault {
     }
 
     get token(): string | undefined {
+        if (this.tokenClient) {
+            return this.tokenClient.token;
+        }
         return this.config.vaultToken;
     }
 
@@ -55,7 +65,7 @@ export class Vault {
             method: method,
             uri,
             headers: {
-                "X-Vault-Token": this.config.vaultToken,
+                "X-Vault-Token": this.token,
                 "X-Vault-Namespace": this.config.vaultNamespace
             },
             body,
@@ -106,5 +116,16 @@ export class Vault {
 
     public Transit(mountPoint?: string) {
         return new TransitVaultClient(this, mountPoint);
+    }
+
+    public KubernetesAuth(config?: IVaultKubernetesAuthLoginConfig, mountPoint?: string): VaultKubernetesAuthClient {
+        return new VaultKubernetesAuthClient(this, config, mountPoint);
+    }
+
+    public Auth(provider?: IVaultAuthProvider, mountPoint?: string): VaultTokenClient {
+        if (!this.tokenClient) {
+            this.tokenClient = new VaultTokenClient(this, mountPoint, provider);
+        }
+        return this.tokenClient;
     }
 }

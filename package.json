@@ -2,10 +2,9 @@
   "name": "vaults",
   "version": "1.0.0",
   "description": "Almost Fully Typed Vault Client for Typescript and Javascript",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
-    "dev-server": "vault server -dev -dev-root-token-id=test",
     "test": "VAULT_TOKEN=test jest",
     "build": "find src -name \"*types.ts\" -exec npx ts-interface-builder --ignore-index-signature {} \\; && tsc",
     "cli": "node dist/cli.js"
