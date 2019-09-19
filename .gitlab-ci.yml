@@ -21,24 +21,13 @@ jest:
   image: node:10.16
   stage: test
   services:
-    - name: vault
-      command: [
-        "sh",
-        "-c",
-        "(while ! nc -z 127.0.0.1 8200; \
-          do \
-            sleep 1; \
-            echo 'waiting for vault service ...'; \
-          done; \
-          vault secrets enable transit \
-        ) & vault server -dev -dev-listen-address=0.0.0.0:8200"
-      ]
+    - vault
   variables:
     VAULT_ADDR: "http://vault:8200"
     VAULT_TOKEN: "test"
     VAULT_DEV_ROOT_TOKEN_ID: "test"
   script:
-    - "while ! curl -v -H 'X-Vault-Token: ${VAULT_TOKEN}' http://vault:8200/v1/transit; do sleep 0.5; done;"
+    - "curl -H 'X-Vault-Token: ${VAULT_DEV_ROOT_TOKEN_ID}' -X POST -d '{"type":"transit"}' http://vault:8200/v1/sys/mounts/transit"
     - yarn compile
     - yarn test
 
