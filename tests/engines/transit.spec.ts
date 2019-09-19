@@ -76,4 +76,24 @@ describe("Transit Vault Client Integration Test (requires running vault instance
         const dec = await client.decryptText("test", enc);
         expect(dec).toEqual("hello");
     });
+
+    test("should response with 400 if the keyID for decryption is invalid", async () => {
+        const encrypted = await client.encryptText("400test", "plainText");
+        const invalidKeyID = "invalid";
+        await client.create(invalidKeyID);
+        try {
+            await client.decryptText(invalidKeyID, encrypted);
+        } catch (err) {
+            expect(err.response.statusCode).toEqual(400);
+        }
+    });
+
+    test("should response with 404 if the keyID for decryption does not exists", async () => {
+        const encrypted = await client.encryptText("404test", "plainText");
+        try {
+            await client.decryptText("unknown key", encrypted);
+        } catch (err) {
+            expect(err.response.statusCode).toEqual(404);
+        }
+    });
 });
