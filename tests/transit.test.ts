@@ -16,7 +16,11 @@ describe("TransitClient", () => {
     const keyID = "testkey";
     const plainText = "this is a to encrypt test text";
 
-    const client = new TransitVaultClient(vault);
+    let client: TransitVaultClient;
+
+    beforeAll(() => {
+        client = new TransitVaultClient(vault);
+    });
 
     beforeEach(async () => {
         await clearKeys(client);
