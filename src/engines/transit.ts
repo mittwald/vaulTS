@@ -1,6 +1,6 @@
 import {createCheckers} from "ts-interface-checker";
 import transitTi from "./transit_types-ti";
-import {Vault, VaultRequestError, VaultError} from "../Vault";
+import {Vault, VaultRequestError} from "../Vault";
 import {AbstractVaultClient} from "../VaultClient";
 import {
     ITransitCreateOptions,
