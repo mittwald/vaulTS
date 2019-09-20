@@ -1,5 +1,5 @@
 import {createCheckers} from "ts-interface-checker";
-import transitTi from "../../src/engines/transit_types-ti";
+import transitTi from "./transit_types-ti";
 import {Vault} from "../Vault";
 import {AbstractVaultClient} from "../VaultClient";
 import {
