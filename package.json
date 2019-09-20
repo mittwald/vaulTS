@@ -1,5 +1,5 @@
 {
-  "name": "vaults",
+  "name": "@hyperspace/vaults",
   "version": "1.0.0",
   "description": "Almost Fully Typed Vault Client for Typescript and Javascript",
   "main": "index.js",
