@@ -2,11 +2,14 @@ import {promises as fs} from "fs";
 import {Vault} from "../Vault";
 import {AbstractVaultClient} from "../VaultClient";
 import {
-    IVaultKubernetesAuthLoginConfig,
-    IVaultKubernetesAuthLoginResponseMetadata,
+    IVaultKubernetesAuthLoginConfig, IVaultKubernetesAuthLoginResponse,
 } from "./kubernetes_types";
 import {IVaultAuthProvider} from "./token";
-import {IVaultTokenAuthResponse} from "./token_types";
+import {createCheckers} from "ts-interface-checker";
+import tokenTi from "./token_types-ti";
+import kubernetesTi from "./kubernetes_types-ti";
+
+const tiChecker = createCheckers(kubernetesTi, tokenTi);
 
 export class VaultKubernetesAuthClient extends AbstractVaultClient implements IVaultAuthProvider {
 
@@ -17,17 +20,20 @@ export class VaultKubernetesAuthClient extends AbstractVaultClient implements IV
         this.config = config;
     }
 
-    public async auth(): Promise<IVaultTokenAuthResponse<IVaultKubernetesAuthLoginResponseMetadata>> {
+    public async auth(): Promise<IVaultKubernetesAuthLoginResponse> {
         if (!this.config) {
             throw new Error("Kubernetes Auth Client not configured");
         }
         if (!this.config.jwt) {
             await this.initConfig(this.config);
         }
-        return this.rawWrite(["/login"], this.config);
+        return this.rawWrite(["/login"], this.config).then((res) => {
+            tiChecker.IVaultTokenAuthResponse.check(res);
+            return res;
+        });
     }
 
-    public async login(config?: IVaultKubernetesAuthLoginConfig): Promise<IVaultTokenAuthResponse<IVaultKubernetesAuthLoginResponseMetadata>> {
+    public async login(config?: IVaultKubernetesAuthLoginConfig): Promise<IVaultKubernetesAuthLoginResponse> {
         if (config) {
             await this.initConfig(config);
         }

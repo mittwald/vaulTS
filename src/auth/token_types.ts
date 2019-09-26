@@ -8,12 +8,11 @@ export interface IVaultTokenRenewOptions {
     increment?: string;
 }
 
-export interface IVaultTokenAuthResponse<T> {
+export interface IVaultTokenAuthResponse {
     auth: {
         client_token: string;
         accessor: string;
         policies: string[];
-        metadata: T;
         lease_duration: number;
         renewable: boolean;
     };
