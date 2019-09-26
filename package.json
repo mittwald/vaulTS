@@ -8,7 +8,7 @@
     "test": "VAULT_TOKEN=test jest",
     "lint": "tslint --project tsconfig.json",
     "compile": "yarn build",
-    "build": "find src -name \"*types.ts\" -exec npx ts-interface-builder --ignore-index-signature {} \\; && tsc && cp package.json *.md dist",
+    "build": "find src -name \"*types.ts\" -exec npx ts-interface-builder --ignore-generics --ignore-index-signature {} \\; && tsc && cp package.json *.md dist",
     "cli": "node dist/cli.js"
   },
   "keywords": [],
