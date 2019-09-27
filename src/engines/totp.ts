@@ -9,6 +9,7 @@ import {
 import {Vault} from "../Vault";
 import {createCheckers} from "ts-interface-checker";
 import totpTi from "./totp_types-ti";
+import {validateKeyName} from "../util";
 
 const tiChecker = createCheckers(totpTi);
 
@@ -19,6 +20,7 @@ export class TotpVaultClient extends AbstractVaultClient {
     }
 
     public async create(key: string, options: ITotpCreateOptions): Promise<ITotpCreateResponse> {
+        validateKeyName(key);
         return this.rawWrite(["keys", key], options).then(res => {
             tiChecker.ITotpCreateResponse.check(res);
             return res;
@@ -26,6 +28,7 @@ export class TotpVaultClient extends AbstractVaultClient {
     }
 
     public async read(key: string): Promise<ITotpReadResponse> {
+        validateKeyName(key);
         return this.rawRead(["keys", key]).then(res => {
             tiChecker.ITotpReadResponse.check(res);
             return res;
@@ -40,10 +43,12 @@ export class TotpVaultClient extends AbstractVaultClient {
     }
 
     public async delete(key: string): Promise<void> {
+        validateKeyName(key);
         return this.rawDelete(["keys", key]);
     }
 
     public async generateCode(key: string): Promise<ITotpGenerateCodeResponse> {
+        validateKeyName(key);
         return this.rawRead(["code", key]).then(res => {
             tiChecker.ITotpGenerateCodeResponse.check(res);
             return res;
@@ -51,6 +56,7 @@ export class TotpVaultClient extends AbstractVaultClient {
     }
 
     public async validateCode(key: string, code: string): Promise<ITotpValidateCodeResponse> {
+        validateKeyName(key);
         return this.rawWrite(["code", key], {
             code,
         }).then(res => {
