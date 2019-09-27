@@ -25,7 +25,7 @@ export interface ITotpCreateResponse {
     data?: {
         barcode?: string;
         url?: string;
-    }
+    };
 }
 
 export interface ITotpReadResponse {
@@ -35,23 +35,23 @@ export interface ITotpReadResponse {
         digits: number;
         issuer: string;
         period: number;
-    }
+    };
 }
 
 export interface ITotpListResponse {
     data: {
         keys: string[];
-    }
+    };
 }
 
 export interface ITotpGenerateCodeResponse {
    data: {
        code: string;
-   }
+   };
 }
 
 export interface ITotpValidateCodeResponse {
     data: {
         valid: boolean;
-    }
+    };
 }
