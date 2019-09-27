@@ -6,6 +6,7 @@ import {IVaultAuthProvider, VaultTokenClient} from "./auth/token";
 import {TransitVaultClient} from "./engines/transit";
 import {VaultHealthClient} from "./sys/VaultHealthClient";
 import {resolveURL} from "./util";
+import {TotpVaultClient} from "./engines/totp";
 
 export type VaultHTTPMethods = "GET" | "POST" | "DELETE" | "LIST";
 
@@ -77,6 +78,10 @@ export class Vault extends EventEmitter {
 
     public Transit(mountPoint?: string) {
         return new TransitVaultClient(this, mountPoint);
+    }
+
+    public Totp(mountPoint?: string) {
+        return new TotpVaultClient(this, mountPoint);
     }
 
     public KubernetesAuth(config?: IVaultKubernetesAuthLoginConfig, mountPoint?: string): VaultKubernetesAuthClient {
