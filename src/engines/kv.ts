@@ -21,7 +21,7 @@ export class KVVaultClient extends AbstractVaultClient {
         });
     }
 
-    public async list(path: string): Promise<IKVListResponse> {
+    public async list(path: string = ""): Promise<IKVListResponse> {
         return this.rawList([path]).then(res => {
             tiChecker.IKVListResponse.check(res);
             return res;

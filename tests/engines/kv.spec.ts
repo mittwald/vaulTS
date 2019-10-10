@@ -17,7 +17,7 @@ describe("KV Vault Client", () => {
             const resRead = await client.read("testpath");
             expect(resRead.data.mykey).toBe("myvalue");
 
-            const resList = await client.list("");
+            const resList = await client.list();
             expect(resList.data.keys).toContain("testpath");
         });
 
@@ -28,7 +28,7 @@ describe("KV Vault Client", () => {
             const resRead = await client.read("my/test/path");
             expect(resRead.data.mykey).toBe("myvalue");
 
-            const resListRoot = await client.list("");
+            const resListRoot = await client.list();
             expect(resListRoot.data.keys).toContain("my/");
             const resListMy = await client.list("my");
             expect(resListMy.data.keys).toContain("test/");
@@ -43,7 +43,7 @@ describe("KV Vault Client", () => {
 
             await client.delete("delete");
 
-            const resList = await client.list("");
+            const resList = await client.list();
             expect(resList.data.keys).not.toContain("delete");
         });
     });
