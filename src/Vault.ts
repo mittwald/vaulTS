@@ -14,7 +14,6 @@ export type VaultHTTPMethods = "GET" | "POST" | "DELETE" | "LIST";
 export interface IVaultConfig {
     vaultAddress?: string;
     vaultToken?: string;
-    vaultTokenAccessor?: string;
     vaultCaCertificate?: string;
     vaultNamespace?: string;
     apiVersion?: string;
@@ -118,6 +117,7 @@ export class Vault extends EventEmitter {
             // vault health endpoint responds with >400 status code
             simple: false,
             resolveWithFullResponse: true,
+            ca: this.config.vaultCaCertificate,
         };
 
         const res = await request(requestOptions);
