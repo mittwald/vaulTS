@@ -16,6 +16,7 @@ import {
     ITransitReadResponse,
     ITransitUpdateOptions,
 } from "./transit_types";
+import {validateKeyName} from "../util";
 
 const transitChecker = createCheckers(transitTi);
 
@@ -26,12 +27,12 @@ export class TransitVaultClient extends AbstractVaultClient {
     }
 
     public async create(key: string, options?: ITransitCreateOptions): Promise<void> {
-        this.validateKey(key);
+        validateKeyName(key);
         return this.rawWrite(["keys", key], options);
     }
 
     public async read(key: string): Promise<ITransitReadResponse> {
-        this.validateKey(key);
+        validateKeyName(key);
         return this.rawRead(["keys", key]).then((res) => {
             transitChecker.ITransitReadResponse.check(res);
             return res;
@@ -46,12 +47,12 @@ export class TransitVaultClient extends AbstractVaultClient {
     }
 
     public async delete(key: string): Promise<void> {
-        this.validateKey(key);
+        validateKeyName(key);
         return this.rawDelete(["keys", key]);
     }
 
     public async forceDelete(key: string): Promise<void> {
-        this.validateKey(key);
+        validateKeyName(key);
         if (!await this.keyExists(key)) {
             return;
         }
@@ -60,17 +61,17 @@ export class TransitVaultClient extends AbstractVaultClient {
     }
 
     public async update(key: string, options: ITransitUpdateOptions): Promise<void> {
-        this.validateKey(key);
+        validateKeyName(key);
         return this.rawWrite(["keys", key, "config"], options);
     }
 
     public async rotate(key: string): Promise<void> {
-        this.validateKey(key);
+        validateKeyName(key);
         return this.rawWrite(["keys", key, "rotate"]);
     }
 
     public async export(key: string, options: ITransitExportOptions): Promise<ITransitExportResponse> {
-        this.validateKey(key);
+        validateKeyName(key);
         const parts = ["export", options.key_type, key];
         if (options.version) {
             parts.push(options.version);
@@ -82,7 +83,7 @@ export class TransitVaultClient extends AbstractVaultClient {
     }
 
     public async keyExists(key: string): Promise<boolean> {
-        this.validateKey(key);
+        validateKeyName(key);
         const keys = await this.list();
         const exists = keys.data.keys.find((k) => k === key);
         if (exists) {
@@ -94,7 +95,7 @@ export class TransitVaultClient extends AbstractVaultClient {
     public async encrypt(key: string, options: ITransitEncryptOptionsSingle): Promise<ITransitEncryptResponseSingle>;
     public async encrypt(key: string, options: ITransitEncryptOptionsBatch): Promise<ITransitEncryptResponseBatch>;
     public async encrypt(key: string, options: ITransitEncryptOptionsSingle | ITransitEncryptOptionsBatch): Promise<ITransitEncryptResponseSingle | ITransitEncryptResponseBatch> {
-        this.validateKey(key);
+        validateKeyName(key);
         return this.rawWrite(["encrypt", key], options).then( (res) => {
             if ("batch_input" in options) {
                 transitChecker.ITransitEncryptResponseBatch.check(res);
@@ -108,7 +109,7 @@ export class TransitVaultClient extends AbstractVaultClient {
     public async decrypt(key: string, options: ITransitDecryptOptionsSingle): Promise<ITransitDecryptResponseSingle>;
     public async decrypt(key: string, options: ITransitDecryptOptionsBatch): Promise<ITransitDecryptResponseBatch>;
     public async decrypt(key: string, options: ITransitDecryptOptionsSingle | ITransitDecryptOptionsBatch): Promise<ITransitDecryptResponseSingle | ITransitDecryptResponseBatch> {
-        this.validateKey(key);
+        validateKeyName(key);
         return this.rawWrite(["decrypt", key], options).then( (res) => {
             if ("batch_input" in options) {
                 transitChecker.ITransitDecryptResponseBatch.check(res);
@@ -120,22 +121,14 @@ export class TransitVaultClient extends AbstractVaultClient {
     }
 
     public async encryptText(key: string, plaintext: string): Promise<string> {
-        this.validateKey(key);
+        validateKeyName(key);
         const base64 = Buffer.from(plaintext).toString("base64");
         return this.encrypt(key, {plaintext: base64}).then((res) => res.data.ciphertext);
     }
 
     public async decryptText(key: string, ciphertext: string): Promise<string> {
-        this.validateKey(key);
+        validateKeyName(key);
         return this.decrypt(key, {ciphertext}).then((res) => Buffer.from(res.data.plaintext, "base64").toString());
     }
 
-    private validateKey(key: string) {
-        if (key.length === 0) {
-            throw new VaultRequestError("key is empty", {statusCode: 400});
-        }
-        if (key.includes("/")) {
-            throw new VaultRequestError(`key "${key}" includes at least one illegal character ("/")`, {statusCode: 400});
-        }
-    }
 }
