@@ -1,10 +1,10 @@
 export interface IKVCreateBody {
-    [key: string]: string;
+    [key: string]: any;
 }
 
 export interface IKVReadResponse {
    data: {
-       [key: string]: string;
+       [key: string]: any;
    };
 }
 

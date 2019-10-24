@@ -1,7 +1,5 @@
 import {AbstractVaultClient} from "../VaultClient";
 import {Vault} from "../Vault";
-import {ITotpCreateOptions, ITotpCreateResponse, ITotpReadResponse} from "./totp_types";
-import {validateKeyName} from "../util";
 import {IKVCreateBody, IKVListResponse, IKVReadResponse} from "./kv_types";
 import {createCheckers} from "ts-interface-checker";
 import kvTi from "./kv_types-ti";
