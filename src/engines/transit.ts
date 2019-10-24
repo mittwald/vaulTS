@@ -1,14 +1,16 @@
 import {createCheckers} from "ts-interface-checker";
 import transitTi from "./transit_types-ti";
-import {Vault, VaultRequestError} from "../Vault";
+import {Vault} from "../Vault";
 import {AbstractVaultClient} from "../VaultClient";
 import {
     ITransitCreateOptions,
     ITransitDecryptOptionsBatch,
     ITransitDecryptOptionsSingle,
-    ITransitDecryptResponseBatch, ITransitDecryptResponseSingle,
+    ITransitDecryptResponseBatch,
+    ITransitDecryptResponseSingle,
     ITransitEncryptOptionsBatch,
-    ITransitEncryptOptionsSingle, ITransitEncryptResponseBatch,
+    ITransitEncryptOptionsSingle,
+    ITransitEncryptResponseBatch,
     ITransitEncryptResponseSingle,
     ITransitExportOptions,
     ITransitExportResponse,

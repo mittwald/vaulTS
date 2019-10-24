@@ -4,7 +4,8 @@ import {
     ITotpCreateResponse,
     ITotpGenerateCodeResponse,
     ITotpListResponse,
-    ITotpReadResponse, ITotpValidateCodeResponse,
+    ITotpReadResponse,
+    ITotpValidateCodeResponse,
 } from "./totp_types";
 import {Vault} from "../Vault";
 import {createCheckers} from "ts-interface-checker";
