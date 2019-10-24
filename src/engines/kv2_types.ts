@@ -1,6 +1,6 @@
 export interface IKV2CreateBody {
     data: {
-        [key: string]: any;
+        [key: string]: string;
     };
     options?: {
         cas: number;
@@ -19,7 +19,7 @@ export interface IKV2CreateResponse {
 export interface IKV2ReadResponse {
     data: {
         data: {
-            [key: string]: any;
+            [key: string]: string;
         };
         metadata?: {
             created_time: string;
