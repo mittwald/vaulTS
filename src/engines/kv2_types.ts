@@ -3,7 +3,7 @@ export interface IKV2CreateBody {
         [key: string]: any;
     };
     options?: {
-        cas: 0;
+        cas: number;
     };
 }
 
