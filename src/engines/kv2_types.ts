@@ -48,7 +48,7 @@ export interface IKV2ReadMetadataResponse {
                created_time: string;
                deletion_time: string;
                destroyed: boolean;
-           }
+           },
        };
-   }
+   };
 }

@@ -7,7 +7,7 @@ import {
     IKV2CreateResponse,
     IKV2ListResponse,
     IKV2ReadMetadataResponse,
-    IKV2ReadResponse
+    IKV2ReadResponse,
 } from "./kv2_types";
 
 const tiChecker = createCheckers(kv2Ti);

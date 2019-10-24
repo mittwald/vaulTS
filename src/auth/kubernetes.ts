@@ -1,7 +1,7 @@
 import {promises as fs} from "fs";
 import {Vault} from "../Vault";
 import {AbstractVaultClient} from "../VaultClient";
-import {IVaultKubernetesAuthLoginConfig, IVaultKubernetesAuthLoginResponse,} from "./kubernetes_types";
+import {IVaultKubernetesAuthLoginConfig, IVaultKubernetesAuthLoginResponse} from "./kubernetes_types";
 import {IVaultAuthProvider} from "./token";
 import {createCheckers} from "ts-interface-checker";
 import tokenTi from "./token_types-ti";

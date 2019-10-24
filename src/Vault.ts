@@ -11,7 +11,7 @@ import {KVVaultClient} from "./engines/kv";
 import {KV2VaultClient} from "./engines";
 
 export type VaultHTTPMethods = "GET" | "POST" | "DELETE" | "LIST";
-export type HTTPGETParameters = { [key: string]: string };
+export interface HTTPGETParameters { [key: string]: string; }
 
 export interface IVaultConfig {
     vaultAddress?: string;
@@ -89,7 +89,7 @@ export class Vault extends EventEmitter {
     public KV(version: 2|undefined, mountPoint?: string): KV2VaultClient;
     public KV(version: 1, mountPoint?: string): KVVaultClient;
     public KV(version: 1|2 = 2, mountPoint?: string) {
-        if (version == 1) {
+        if (version === 1) {
             return new KVVaultClient(this, mountPoint);
         }
         return new KV2VaultClient(this, mountPoint);
