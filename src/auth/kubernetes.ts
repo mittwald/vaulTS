@@ -1,4 +1,4 @@
-import {promises as fs} from "fs";
+import * as fs from "fs";
 import {Vault} from "../Vault";
 import {AbstractVaultClient} from "../VaultClient";
 import {IVaultKubernetesAuthLoginConfig, IVaultKubernetesAuthLoginResponse} from "./kubernetes_types";
@@ -40,7 +40,7 @@ export class VaultKubernetesAuthClient extends AbstractVaultClient implements IV
 
     private async initConfig(config: IVaultKubernetesAuthLoginConfig) {
         if (!config.jwt) {
-            config.jwt = await fs.readFile(config.jwt_path || "/run/secrets/kubernetes.io/serviceaccount/token", "utf8");
+            config.jwt = fs.readFileSync(config.jwt_path || "/run/secrets/kubernetes.io/serviceaccount/token", "utf8");
             delete config.jwt_path;
         }
         this.config = config;
