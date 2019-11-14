@@ -7,7 +7,7 @@ describe("KV Vault Client", () => {
     describe("Integration Test (requires running vault instance)", () => {
         beforeAll(async () => {
             const vault = new Vault();
-            client = vault.KV();
+            client = vault.KV(1);
         });
 
         test("successfully create, read and list key in root", async () => {

@@ -8,8 +8,10 @@ import {VaultHealthClient} from "./sys/VaultHealthClient";
 import {resolveURL} from "./util";
 import {TotpVaultClient} from "./engines/totp";
 import {KVVaultClient} from "./engines/kv";
+import {KV2VaultClient} from "./engines";
 
 export type VaultHTTPMethods = "GET" | "POST" | "DELETE" | "LIST";
+export interface HTTPGETParameters { [key: string]: string; }
 
 export interface IVaultConfig {
     vaultAddress?: string;
@@ -56,20 +58,20 @@ export class Vault extends EventEmitter {
         return this.config.vaultToken;
     }
 
-    public async read(path: string | string[], acceptedReturnCodes?: number[]): Promise<any> {
-        return this.request("GET", path, {}, acceptedReturnCodes);
+    public async read(path: string | string[], parameters?: HTTPGETParameters, acceptedReturnCodes?: number[]): Promise<any> {
+        return this.request("GET", path, {}, parameters, acceptedReturnCodes);
     }
 
     public async write(path: string | string[], body: any, acceptedReturnCodes?: number[]): Promise<any> {
-        return this.request("POST", path, body, acceptedReturnCodes);
+        return this.request("POST", path, body, undefined, acceptedReturnCodes);
     }
 
     public async delete(path: string | string[], body: any, acceptedReturnCodes?: number[]): Promise<any> {
-        return this.request("DELETE", path, body, acceptedReturnCodes);
+        return this.request("DELETE", path, body, undefined, acceptedReturnCodes);
     }
 
     public async list(path: string | string[], acceptedReturnCodes?: number[]): Promise<any> {
-        return this.request("LIST", path, {}, acceptedReturnCodes);
+        return this.request("LIST", path, {}, undefined, acceptedReturnCodes);
     }
 
     public Health(): VaultHealthClient {
@@ -84,8 +86,13 @@ export class Vault extends EventEmitter {
         return new TotpVaultClient(this, mountPoint);
     }
 
-    public KV(mountPoint?: string) {
-        return new KVVaultClient(this, mountPoint);
+    public KV(version: 2|undefined, mountPoint?: string): KV2VaultClient;
+    public KV(version: 1, mountPoint?: string): KVVaultClient;
+    public KV(version: 1|2 = 2, mountPoint?: string) {
+        if (version === 1) {
+            return new KVVaultClient(this, mountPoint);
+        }
+        return new KV2VaultClient(this, mountPoint);
     }
 
     public KubernetesAuth(config?: IVaultKubernetesAuthLoginConfig, mountPoint?: string): VaultKubernetesAuthClient {
@@ -99,7 +106,7 @@ export class Vault extends EventEmitter {
         return this.tokenClient;
     }
 
-    private async request(method: VaultHTTPMethods, path: string | string[], body: any, acceptedReturnCodes: number[] = [200, 204]): Promise<any> {
+    private async request(method: VaultHTTPMethods, path: string | string[], body: any, parameters?: HTTPGETParameters, acceptedReturnCodes: number[] = [200, 204]): Promise<any> {
         if (typeof path === "string") {
             path = [path];
         }
@@ -118,6 +125,7 @@ export class Vault extends EventEmitter {
             simple: false,
             resolveWithFullResponse: true,
             ca: this.config.vaultCaCertificate,
+            qs: parameters,
         };
 
         const res = await request(requestOptions);
