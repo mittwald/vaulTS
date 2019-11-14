@@ -21,10 +21,10 @@ export interface ITotpCreateOptionsNoGenerate {
     digits?: number;
 }
 export type ITotpCreateOptions = ITotpCreateOptionsGenerate | ITotpCreateOptionsNoGenerate;
-export interface ITotpCreateResponse {
-    data?: {
-        barcode?: string;
-        url?: string;
+export interface ITotpCreateResponseExported {
+    data: {
+        barcode: string;
+        url: string;
     };
 }
 

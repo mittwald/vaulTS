@@ -1,7 +1,8 @@
 import {AbstractVaultClient} from "../VaultClient";
 import {
     ITotpCreateOptions,
-    ITotpCreateResponse,
+    ITotpCreateOptionsGenerate,
+    ITotpCreateResponseExported,
     ITotpGenerateCodeResponse,
     ITotpListResponse,
     ITotpReadResponse,
@@ -20,10 +21,14 @@ export class TotpVaultClient extends AbstractVaultClient {
         super(vault, mountPoint);
     }
 
-    public async create(key: string, options: ITotpCreateOptions): Promise<ITotpCreateResponse> {
+    public async create(key: string, options: ITotpCreateOptionsGenerate & { exported: true }): Promise<ITotpCreateResponseExported>;
+    public async create(key: string, options: ITotpCreateOptions): Promise<void>;
+    public async create(key: string, options: ITotpCreateOptions): Promise<ITotpCreateResponseExported | void> {
         validateKeyName(key);
         return this.rawWrite(["keys", key], options).then(res => {
-            tiChecker.ITotpCreateResponse.check(res);
+            if (options.generate && options.exported) {
+                tiChecker.ITotpCreateResponseExported.check(res);
+            }
             return res;
         });
     }
