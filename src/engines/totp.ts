@@ -1,6 +1,7 @@
 import {AbstractVaultClient} from "../VaultClient";
 import {
-    ITotpCreateOptions, ITotpCreateOptionsGenerate,
+    ITotpCreateOptions,
+    ITotpCreateOptionsGenerate,
     ITotpCreateResponseExported,
     ITotpGenerateCodeResponse,
     ITotpListResponse,
