@@ -63,7 +63,8 @@ export class VaultTokenClient extends AbstractVaultClient {
     }
 
     /**
-     * Enables a periodic job that renews the token before expiration
+     * Enables a periodic job that renews the token before expiration.
+     * To receive renew errors, subscribe to the "error" event on the vault instance.
      */
     public async enableAutoRenew(): Promise<IVaultTokenAuthResponse> {
         return this.autoRenew();
