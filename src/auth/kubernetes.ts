@@ -18,6 +18,10 @@ export class VaultKubernetesAuthClient extends AbstractVaultClient implements IV
         this.config = config;
     }
 
+    /**
+     * Fetches a token from the configured kubernetes api
+     * @see https://www.vaultproject.io/api/auth/kubernetes/index.html#login
+     */
     public async auth(): Promise<IVaultKubernetesAuthLoginResponse> {
         if (!this.config) {
             throw new Error("Kubernetes Auth Client not configured");
@@ -31,6 +35,10 @@ export class VaultKubernetesAuthClient extends AbstractVaultClient implements IV
         });
     }
 
+    /**
+     * Initializes the config and fetches a token.
+     * @param config
+     */
     public async login(config?: IVaultKubernetesAuthLoginConfig): Promise<IVaultKubernetesAuthLoginResponse> {
         if (config) {
             await this.initConfig(config);

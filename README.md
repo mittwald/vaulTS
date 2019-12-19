@@ -14,7 +14,8 @@ const k8sauth  = client.KubernetesAuth({
 
 await client.Auth(k8sauth)
     .enableAutoRenew()
-    .catch(e => console.log(e));
+
+client.on("error", e => console.log(e));
 
 client.Health().health().then(a => console.log(a));
 ```

@@ -24,6 +24,11 @@ export class VaultTokenClient extends AbstractVaultClient {
         super(vault, ["auth", mountPoint]);
     }
 
+    /**
+     * Renews a lease associated with a token. This is used to prevent the expiration of a token, and the automatic revocation of it. Token renewal is possible only if there is a lease associated with it.
+     * @see https://www.vaultproject.io/api/auth/token/index.html#renew-a-token
+     * @param options
+     */
     public async renew(options?: IVaultTokenRenewOptions): Promise<IVaultTokenAuthResponse> {
         return this.rawWrite(["/renew"], options).then((res) => {
             tiChecker.IVaultTokenAuthResponse.check(res);
@@ -31,6 +36,12 @@ export class VaultTokenClient extends AbstractVaultClient {
         });
     }
 
+    /**
+     * Renews a lease associated with the calling token. This is used to prevent the expiration of a token, and the automatic revocation of it. Token renewal is possible only if there is a lease associated with it.
+     * @see https://www.vaultproject.io/api/auth/token/index.html#renew-a-token-self-
+     * @param options
+     * @param authProviderFallback Tries to get a new token from the authProvider if renew fails
+     */
     public async renewSelf(options?: IVaultTokenRenewSelfOptions, authProviderFallback: boolean = false): Promise<IVaultTokenAuthResponse> {
         let newState: IVaultTokenAuthResponse;
         try {
@@ -51,6 +62,10 @@ export class VaultTokenClient extends AbstractVaultClient {
         return this.state;
     }
 
+    /**
+     * Enables a periodic job that renews the token before expiration.
+     * To receive renew errors, subscribe to the "error" event on the vault instance.
+     */
     public async enableAutoRenew(): Promise<IVaultTokenAuthResponse> {
         return this.autoRenew();
     }
