@@ -16,6 +16,7 @@ jobs:
           scope: "@mittwald"
       - run: yarn
       - run: yarn compile
+      - run: yarn version --new-version ${GITHUB_REF##*/}
       - run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.MITTWALD_MACHINE_TOKEN }}
