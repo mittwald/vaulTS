@@ -16,6 +16,8 @@ jobs:
           scope: "@mittwald"
       - run: yarn
       - run: yarn compile
+      - run: git config --global user.name "Mittwald Machine"
+      - run: git config --global user.email "opensource@mittwald.de"
       - run: yarn version --new-version ${GITHUB_REF##*/}
       - run: yarn publish
         env:
