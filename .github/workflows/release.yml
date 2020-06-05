@@ -15,6 +15,7 @@ jobs:
           # Defaults to the user or organization that owns the workflow file
           scope: "@mittwald"
       - run: yarn
+      - run: yarn compile
       - run: yarn publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.MITTWALD_MACHINE_TOKEN }}
