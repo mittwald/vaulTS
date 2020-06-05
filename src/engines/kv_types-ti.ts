@@ -4,21 +4,23 @@
 import * as t from "ts-interface-checker";
 // tslint:disable:object-literal-key-quotes
 
-export const IKVCreateBody = t.iface([], {});
+export const IKVCreateBody = t.iface([], {
+});
 
 export const IKVReadResponse = t.iface([], {
-    data: t.iface([], {}),
+  "data": t.iface([], {
+  }),
 });
 
 export const IKVListResponse = t.iface([], {
-    data: t.iface([], {
-        keys: t.array("string"),
-    }),
+  "data": t.iface([], {
+    "keys": t.array("string"),
+  }),
 });
 
 const exportedTypeSuite: t.ITypeSuite = {
-    IKVCreateBody,
-    IKVReadResponse,
-    IKVListResponse,
+  IKVCreateBody,
+  IKVReadResponse,
+  IKVListResponse,
 };
 export default exportedTypeSuite;

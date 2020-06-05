@@ -5,30 +5,30 @@ import * as t from "ts-interface-checker";
 // tslint:disable:object-literal-key-quotes
 
 export const IVaultKubernetesAuthLoginConfig = t.iface([], {
-    role: "string",
-    jwt: t.opt("string"),
-    jwt_path: t.opt("string"),
+  "role": "string",
+  "jwt": t.opt("string"),
+  "jwt_path": t.opt("string"),
 });
 
 export const IVaultKubernetesAuthLoginResponse = t.iface(["IVaultTokenAuthResponse"], {
-    auth: t.iface([], {
-        client_token: "string",
-        accessor: "string",
-        policies: t.array("string"),
-        lease_duration: "number",
-        renewable: "boolean",
-        metadata: t.iface([], {
-            role: "string",
-            service_account_name: "string",
-            service_account_namespace: "string",
-            service_account_secret_name: "string",
-            service_account_uid: "string",
-        }),
+  "auth": t.iface([], {
+    "client_token": "string",
+    "accessor": "string",
+    "policies": t.array("string"),
+    "lease_duration": "number",
+    "renewable": "boolean",
+    "metadata": t.iface([], {
+      "role": "string",
+      "service_account_name": "string",
+      "service_account_namespace": "string",
+      "service_account_secret_name": "string",
+      "service_account_uid": "string",
     }),
+  }),
 });
 
 const exportedTypeSuite: t.ITypeSuite = {
-    IVaultKubernetesAuthLoginConfig,
-    IVaultKubernetesAuthLoginResponse,
+  IVaultKubernetesAuthLoginConfig,
+  IVaultKubernetesAuthLoginResponse,
 };
 export default exportedTypeSuite;
