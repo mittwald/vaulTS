@@ -1,14 +1,8 @@
-import {AbstractVaultClient} from "../VaultClient";
-import {HTTPGETParameters, Vault} from "../Vault";
-import {createCheckers} from "ts-interface-checker";
+import { AbstractVaultClient } from "../VaultClient";
+import { HTTPGETParameters, Vault } from "../Vault";
+import { createCheckers } from "ts-interface-checker";
 import kv2Ti from "./kv2_types-ti";
-import {
-    IKV2CreateBody,
-    IKV2CreateResponse,
-    IKV2ListResponse,
-    IKV2ReadMetadataResponse,
-    IKV2ReadResponse,
-} from "./kv2_types";
+import { IKV2CreateBody, IKV2CreateResponse, IKV2ListResponse, IKV2ReadMetadataResponse, IKV2ReadResponse } from "./kv2_types";
 
 const tiChecker = createCheckers(kv2Ti);
 
@@ -17,7 +11,6 @@ const tiChecker = createCheckers(kv2Ti);
  * @see https://www.vaultproject.io/api/secret/kv/kv-v2.html
  */
 export class KV2VaultClient extends AbstractVaultClient {
-
     public constructor(vault: Vault, mountPoint: string = "/secret") {
         super(vault, mountPoint);
     }
@@ -31,9 +24,9 @@ export class KV2VaultClient extends AbstractVaultClient {
     public async read(path: string, version?: number): Promise<IKV2ReadResponse> {
         let parameters: HTTPGETParameters | undefined;
         if (version) {
-            parameters = {version: version.toString()};
+            parameters = { version: version.toString() };
         }
-        return this.rawRead(["data", path], parameters).then(res => {
+        return this.rawRead(["data", path], parameters).then((res) => {
             tiChecker.IKV2ReadResponse.check(res);
             return res;
         });
@@ -45,7 +38,7 @@ export class KV2VaultClient extends AbstractVaultClient {
      * @param path
      */
     public async list(path: string = ""): Promise<IKV2ListResponse> {
-        return this.rawList(["metadata", path]).then(res => {
+        return this.rawList(["metadata", path]).then((res) => {
             tiChecker.IKV2ListResponse.check(res);
             return res;
         });
@@ -58,7 +51,7 @@ export class KV2VaultClient extends AbstractVaultClient {
      * @param body
      */
     public async create(path: string, body: IKV2CreateBody): Promise<IKV2CreateResponse> {
-        return this.rawWrite(["data", path], body).then(res => {
+        return this.rawWrite(["data", path], body).then((res) => {
             tiChecker.IKV2CreateResponse.check(res);
             return res;
         });
@@ -73,7 +66,7 @@ export class KV2VaultClient extends AbstractVaultClient {
      */
     public async deleteVersion(path: string, versions?: number[]): Promise<void> {
         if (versions) {
-            return this.rawWrite(["delete", path], {versions});
+            return this.rawWrite(["delete", path], { versions });
         } else {
             return this.rawDelete(["data", path]);
         }
@@ -86,7 +79,7 @@ export class KV2VaultClient extends AbstractVaultClient {
      * @param versions
      */
     public async undeleteVersion(path: string, versions: number[]): Promise<void> {
-        return this.rawWrite(["undelete", path], {versions});
+        return this.rawWrite(["undelete", path], { versions });
     }
 
     /**
@@ -96,7 +89,7 @@ export class KV2VaultClient extends AbstractVaultClient {
      * @param versions
      */
     public async destroyVersion(path: string, versions: number[]): Promise<void> {
-        return this.rawWrite(["destroy", path], {versions});
+        return this.rawWrite(["destroy", path], { versions });
     }
 
     /**
@@ -105,7 +98,7 @@ export class KV2VaultClient extends AbstractVaultClient {
      * @param path
      */
     public async readMetadata(path: string = ""): Promise<IKV2ReadMetadataResponse> {
-        return this.rawRead(["metadata", path]).then(res => {
+        return this.rawRead(["metadata", path]).then((res) => {
             tiChecker.IKV2ReadMetadataResponse.check(res);
             return res;
         });

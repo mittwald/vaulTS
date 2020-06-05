@@ -1,4 +1,4 @@
-import {AbstractVaultClient} from "../VaultClient";
+import { AbstractVaultClient } from "../VaultClient";
 import {
     ITotpCreateOptions,
     ITotpCreateOptionsGenerate,
@@ -8,10 +8,10 @@ import {
     ITotpReadResponse,
     ITotpValidateCodeResponse,
 } from "./totp_types";
-import {Vault} from "../Vault";
-import {createCheckers} from "ts-interface-checker";
+import { Vault } from "../Vault";
+import { createCheckers } from "ts-interface-checker";
 import totpTi from "./totp_types-ti";
-import {validateKeyName} from "../util";
+import { validateKeyName } from "../util";
 
 const tiChecker = createCheckers(totpTi);
 
@@ -20,7 +20,6 @@ const tiChecker = createCheckers(totpTi);
  * @see https://www.vaultproject.io/api/secret/totp/index.html
  */
 export class TotpVaultClient extends AbstractVaultClient {
-
     public constructor(vault: Vault, mountPoint: string = "/totp") {
         super(vault, mountPoint);
     }
@@ -44,7 +43,7 @@ export class TotpVaultClient extends AbstractVaultClient {
     public async create(key: string, options: ITotpCreateOptions): Promise<void>;
     public async create(key: string, options: ITotpCreateOptions): Promise<ITotpCreateResponseExported | void> {
         validateKeyName(key);
-        return this.rawWrite(["keys", key], options).then(res => {
+        return this.rawWrite(["keys", key], options).then((res) => {
             if (options.generate && options.exported) {
                 tiChecker.ITotpCreateResponseExported.check(res);
             }
@@ -58,7 +57,7 @@ export class TotpVaultClient extends AbstractVaultClient {
      */
     public async read(key: string): Promise<ITotpReadResponse> {
         validateKeyName(key);
-        return this.rawRead(["keys", key]).then(res => {
+        return this.rawRead(["keys", key]).then((res) => {
             tiChecker.ITotpReadResponse.check(res);
             return res;
         });
@@ -68,7 +67,7 @@ export class TotpVaultClient extends AbstractVaultClient {
      * @see https://www.vaultproject.io/api/secret/totp/index.html#list-keys
      */
     public async list(): Promise<ITotpListResponse> {
-        return this.rawList(["keys"]).then(res => {
+        return this.rawList(["keys"]).then((res) => {
             tiChecker.ITotpListResponse.check(res);
             return res;
         });
@@ -89,7 +88,7 @@ export class TotpVaultClient extends AbstractVaultClient {
      */
     public async generateCode(key: string): Promise<ITotpGenerateCodeResponse> {
         validateKeyName(key);
-        return this.rawRead(["code", key]).then(res => {
+        return this.rawRead(["code", key]).then((res) => {
             tiChecker.ITotpGenerateCodeResponse.check(res);
             return res;
         });
@@ -104,7 +103,7 @@ export class TotpVaultClient extends AbstractVaultClient {
         validateKeyName(key);
         return this.rawWrite(["code", key], {
             code,
-        }).then(res => {
+        }).then((res) => {
             tiChecker.ITotpValidateCodeResponse.check(res);
             return res;
         });

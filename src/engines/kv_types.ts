@@ -3,9 +3,9 @@ export interface IKVCreateBody {
 }
 
 export interface IKVReadResponse {
-   data: {
-       [key: string]: string;
-   };
+    data: {
+        [key: string]: string;
+    };
 }
 
 export interface IKVListResponse {

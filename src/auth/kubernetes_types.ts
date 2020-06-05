@@ -1,4 +1,4 @@
-import {IVaultTokenAuthResponse} from "./token_types";
+import { IVaultTokenAuthResponse } from "./token_types";
 
 export interface IVaultKubernetesAuthLoginConfig {
     role: string;

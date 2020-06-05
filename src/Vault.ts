@@ -1,17 +1,19 @@
-import {EventEmitter} from "events";
+import { EventEmitter } from "events";
 import request from "request-promise-native";
-import {VaultKubernetesAuthClient} from "./auth/kubernetes";
-import {IVaultKubernetesAuthLoginConfig} from "./auth/kubernetes_types";
-import {IVaultAuthProvider, VaultTokenClient} from "./auth/token";
-import {TransitVaultClient} from "./engines/transit";
-import {VaultHealthClient} from "./sys/VaultHealthClient";
-import {resolveURL} from "./util";
-import {TotpVaultClient} from "./engines/totp";
-import {KVVaultClient} from "./engines/kv";
-import {KV2VaultClient} from "./engines";
+import { VaultKubernetesAuthClient } from "./auth/kubernetes";
+import { IVaultKubernetesAuthLoginConfig } from "./auth/kubernetes_types";
+import { IVaultAuthProvider, VaultTokenClient } from "./auth/token";
+import { TransitVaultClient } from "./engines/transit";
+import { VaultHealthClient } from "./sys/VaultHealthClient";
+import { resolveURL } from "./util";
+import { TotpVaultClient } from "./engines/totp";
+import { KVVaultClient } from "./engines/kv";
+import { KV2VaultClient } from "./engines";
 
 export type VaultHTTPMethods = "GET" | "POST" | "DELETE" | "LIST";
-export interface HTTPGETParameters { [key: string]: string; }
+export interface HTTPGETParameters {
+    [key: string]: string;
+}
 
 export interface IVaultConfig {
     vaultAddress?: string;
@@ -21,8 +23,7 @@ export interface IVaultConfig {
     apiVersion?: string;
 }
 
-export class VaultError extends Error {
-}
+export class VaultError extends Error {}
 
 export interface IVaultErrorResponse {
     statusCode: number;
@@ -32,8 +33,11 @@ export interface IVaultErrorResponse {
 }
 
 export class VaultRequestError extends VaultError {
-    constructor(message: string, private response: IVaultErrorResponse) {
+    private readonly response: IVaultErrorResponse;
+
+    public constructor(message: string, response: IVaultErrorResponse) {
         super(message);
+        this.response = response;
     }
 }
 
@@ -41,17 +45,17 @@ export class Vault extends EventEmitter {
     public readonly config: IVaultConfig;
     private tokenClient?: VaultTokenClient;
 
-    constructor(userConfig?: IVaultConfig) {
+    public constructor(userConfig?: IVaultConfig) {
         super();
         this.config = {
-            vaultAddress: process.env.VAULT_ADDR || "http://127.0.0.1:8200",
+            vaultAddress: process.env.VAULT_ADDR ?? "http://127.0.0.1:8200",
             apiVersion: "v1",
             vaultToken: process.env.VAULT_TOKEN,
             ...userConfig,
         };
     }
 
-    get token(): string | undefined {
+    public get token(): string | undefined {
         if (this.tokenClient) {
             return this.tokenClient.token;
         }
@@ -78,17 +82,17 @@ export class Vault extends EventEmitter {
         return new VaultHealthClient(this, "/sys");
     }
 
-    public Transit(mountPoint?: string) {
+    public Transit(mountPoint?: string): TransitVaultClient {
         return new TransitVaultClient(this, mountPoint);
     }
 
-    public Totp(mountPoint?: string) {
+    public Totp(mountPoint?: string): TotpVaultClient {
         return new TotpVaultClient(this, mountPoint);
     }
 
-    public KV(version: 2|undefined, mountPoint?: string): KV2VaultClient;
+    public KV(version: 2 | undefined, mountPoint?: string): KV2VaultClient;
     public KV(version: 1, mountPoint?: string): KVVaultClient;
-    public KV(version: 1|2 = 2, mountPoint?: string) {
+    public KV(version: 1 | 2 = 2, mountPoint?: string): KV2VaultClient | KVVaultClient {
         if (version === 1) {
             return new KVVaultClient(this, mountPoint);
         }
@@ -106,15 +110,21 @@ export class Vault extends EventEmitter {
         return this.tokenClient;
     }
 
-    private async request(method: VaultHTTPMethods, path: string | string[], body: any, parameters?: HTTPGETParameters, acceptedReturnCodes: number[] = [200, 204]): Promise<any> {
+    private async request(
+        method: VaultHTTPMethods,
+        path: string | string[],
+        body: any,
+        parameters?: HTTPGETParameters,
+        acceptedReturnCodes: number[] = [200, 204],
+    ): Promise<any> {
         if (typeof path === "string") {
             path = [path];
         }
-        const uri: URL = resolveURL(this.config.vaultAddress!, this.config.apiVersion!, ...path);
+        const uri = resolveURL(this.config.vaultAddress!, this.config.apiVersion!, ...path);
 
         const requestOptions: request.Options = {
             method,
-            uri,
+            uri: uri.toString(),
             headers: {
                 "X-Vault-Token": this.token,
                 "X-Vault-Namespace": this.config.vaultNamespace,
@@ -141,7 +151,10 @@ export class Vault extends EventEmitter {
                     body: res.body,
                 };
             }
-            throw new VaultRequestError(`Request to ${requestOptions.uri.toString()} failed (Status ${errorResponse.statusCode})`, errorResponse);
+            throw new VaultRequestError(
+                `Request to ${requestOptions.uri.toString()} failed (Status ${errorResponse.statusCode})`,
+                errorResponse,
+            );
         }
 
         return res.body;

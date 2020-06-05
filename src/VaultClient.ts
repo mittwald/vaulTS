@@ -1,9 +1,12 @@
-import {HTTPGETParameters, Vault} from "./Vault";
+import { HTTPGETParameters, Vault } from "./Vault";
 
 export abstract class AbstractVaultClient {
-    private mountPoint: string[];
-    protected constructor(protected vault: Vault, mountPoint: string | string[]) {
+    private readonly mountPoint: string[];
+    protected vault: Vault;
+
+    protected constructor(vault: Vault, mountPoint: string | string[]) {
         this.mountPoint = typeof mountPoint === "string" ? [mountPoint] : mountPoint;
+        this.vault = vault;
     }
 
     protected async rawRead(path: string[], parameters?: HTTPGETParameters, acceptedReturnCodes?: number[]): Promise<any> {

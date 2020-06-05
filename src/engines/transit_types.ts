@@ -1,4 +1,3 @@
-
 export type ITransitKeyType = "aes256-gcm96" | "chacha20-poly1305" | "d25519" | "ecdsa-p256" | "rsa-2048" | "rsa-4096";
 
 export type ITransitBatchPlaintext = Array<{

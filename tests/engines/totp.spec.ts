@@ -1,6 +1,6 @@
-import {Vault} from "../../src";
-import {TransitVaultClient} from "../../src";
-import {TotpVaultClient} from "../../src/engines/totp";
+import { Vault } from "../../src";
+import { TransitVaultClient } from "../../src";
+import { TotpVaultClient } from "../../src/engines/totp";
 
 describe("Totp Vault Client", () => {
     let client: TotpVaultClient;
@@ -15,7 +15,7 @@ describe("Totp Vault Client", () => {
             const resCreate = await client.create("test", {
                 generate: true,
                 issuer: "test",
-                account_name: "name"
+                account_name: "name",
             });
             const resRead = await client.read("test");
             expect(resRead.data.account_name).toBe("name");
@@ -29,7 +29,7 @@ describe("Totp Vault Client", () => {
             const resCreate = await client.create("delete", {
                 generate: true,
                 issuer: "test",
-                account_name: "delete"
+                account_name: "delete",
             });
 
             await client.delete("delete");
@@ -40,9 +40,9 @@ describe("Totp Vault Client", () => {
 
         test("successfully generate and validate code", async () => {
             const resCreate = await client.create("code", {
-                 generate: true,
-                 issuer: "test",
-                 account_name: "code"
+                generate: true,
+                issuer: "test",
+                account_name: "code",
             });
             const resGenerate = await client.generateCode("code");
             const code = resGenerate.data.code;
@@ -51,5 +51,4 @@ describe("Totp Vault Client", () => {
             expect(resValidate.data.valid).toBe(true);
         });
     });
-
 });

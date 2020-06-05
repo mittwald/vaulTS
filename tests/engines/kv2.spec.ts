@@ -1,5 +1,5 @@
-import {KV2VaultClient, Vault} from "../../src";
-import {KVVaultClient} from "../../src/engines/kv";
+import { KV2VaultClient, Vault } from "../../src";
+import { KVVaultClient } from "../../src/engines/kv";
 
 describe("KV Vault Client", () => {
     let client: KV2VaultClient;
@@ -13,8 +13,8 @@ describe("KV Vault Client", () => {
         test("successfully create, read and list key in root", async () => {
             const resCreate = await client.create("testpath", {
                 data: {
-                    mykey: "myvalue"
-                }
+                    mykey: "myvalue",
+                },
             });
             const resRead = await client.read("testpath");
             expect(resRead.data.data.mykey).toBe("myvalue");
@@ -26,8 +26,8 @@ describe("KV Vault Client", () => {
         test("successfully create, read and list key in sub-path", async () => {
             const resCreate = await client.create("my/test/path", {
                 data: {
-                    mykey: "myvalue"
-                }
+                    mykey: "myvalue",
+                },
             });
             const resRead = await client.read("my/test/path");
             expect(resRead.data.data.mykey).toBe("myvalue");
@@ -43,17 +43,18 @@ describe("KV Vault Client", () => {
         test("successfully deleteVersion and undelete", async () => {
             const resCreate = await client.create("undeleteversion", {
                 data: {
-                    mykey: "myvalue"
-                }
+                    mykey: "myvalue",
+                },
             });
 
             const metadata = await client.readMetadata("undeleteversion");
-            const versiontoDelete = Object.keys(metadata.data.versions).map(s => parseInt(s)).reverse()[0];
+            const versiontoDelete = Object.keys(metadata.data.versions)
+                .map((s) => parseInt(s))
+                .reverse()[0];
 
             await client.deleteVersion("undeleteversion", [versiontoDelete]);
             const metadataDelete = await client.readMetadata("undeleteversion");
             expect(metadataDelete.data.versions["" + versiontoDelete].deletion_time).not.toBe("");
-
 
             await client.undeleteVersion("undeleteversion", [versiontoDelete]);
             const metadataDestroy = await client.readMetadata("undeleteversion");
@@ -64,29 +65,29 @@ describe("KV Vault Client", () => {
         test("successfully deleteVersion and destroy", async () => {
             const resCreate = await client.create("destroyversion", {
                 data: {
-                    mykey: "myvalue"
-                }
+                    mykey: "myvalue",
+                },
             });
 
             const metadata = await client.readMetadata("destroyversion");
-            const versiontoDelete = Object.keys(metadata.data.versions).map(s => parseInt(s)).reverse()[0];
+            const versiontoDelete = Object.keys(metadata.data.versions)
+                .map((s) => parseInt(s))
+                .reverse()[0];
 
             await client.deleteVersion("destroyversion", [versiontoDelete]);
             const metadataDelete = await client.readMetadata("destroyversion");
             expect(metadataDelete.data.versions["" + versiontoDelete].destroyed).toBe(false);
 
-
             await client.destroyVersion("destroyversion", [versiontoDelete]);
             const metadataDestroy = await client.readMetadata("destroyversion");
             expect(metadataDestroy.data.versions["" + versiontoDelete].destroyed).toBe(true);
-
         });
 
         test("successfully delete", async () => {
             const resCreate = await client.create("delete", {
                 data: {
-                    mykey: "myvalue"
-                }
+                    mykey: "myvalue",
+                },
             });
 
             await client.delete("delete");
@@ -98,17 +99,19 @@ describe("KV Vault Client", () => {
         test("successfully read version", async () => {
             await client.create("version", {
                 data: {
-                    mykey: "myvalue"
-                }
+                    mykey: "myvalue",
+                },
             });
             await client.create("version", {
                 data: {
-                    mykey: "myvalue2"
-                }
+                    mykey: "myvalue2",
+                },
             });
 
             const metadata = await client.readMetadata("version");
-            const versions = Object.keys(metadata.data.versions).map(s => parseInt(s)).reverse();
+            const versions = Object.keys(metadata.data.versions)
+                .map((s) => parseInt(s))
+                .reverse();
 
             const readLast = await client.read("version");
             expect(readLast.data.data.mykey).toBe("myvalue2");
@@ -118,5 +121,4 @@ describe("KV Vault Client", () => {
             expect(read1.data.data.mykey).toBe("myvalue");
         });
     });
-
 });

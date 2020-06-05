@@ -1,5 +1,5 @@
-import {Vault} from "../../src";
-import {KVVaultClient} from "../../src/engines/kv";
+import { Vault } from "../../src";
+import { KVVaultClient } from "../../src/engines/kv";
 
 describe("KV Vault Client", () => {
     let client: KVVaultClient;
@@ -12,7 +12,7 @@ describe("KV Vault Client", () => {
 
         test("successfully create, read and list key in root", async () => {
             const resCreate = await client.create("testpath", {
-                mykey: "myvalue"
+                mykey: "myvalue",
             });
             const resRead = await client.read("testpath");
             expect(resRead.data.mykey).toBe("myvalue");
@@ -23,7 +23,7 @@ describe("KV Vault Client", () => {
 
         test("successfully create, read and list key in sub-path", async () => {
             const resCreate = await client.create("my/test/path", {
-                mykey: "myvalue"
+                mykey: "myvalue",
             });
             const resRead = await client.read("my/test/path");
             expect(resRead.data.mykey).toBe("myvalue");
@@ -38,7 +38,7 @@ describe("KV Vault Client", () => {
 
         test("successfully delete", async () => {
             const resCreate = await client.create("delete", {
-                mykey: "myvalue"
+                mykey: "myvalue",
             });
 
             await client.delete("delete");
@@ -47,5 +47,4 @@ describe("KV Vault Client", () => {
             expect(resList.data.keys).not.toContain("delete");
         });
     });
-
 });
