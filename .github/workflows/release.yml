@@ -19,10 +19,11 @@ jobs:
       - run: git config --global user.name "Mittwald Machine"
       - run: git config --global user.email "opensource@mittwald.de"
       - run: yarn version --new-version ${GITHUB_REF##*/}
-      - env:
+      - name: Publish things
+        env:
           NODE_AUTH_TOKEN: ${{ secrets.MITTWALD_MACHINE_TOKEN }}
         run: >
-          git remote add publisher https://mittwald-machine:${NODE_AUTH_TOKEN}@github.com/mittwald/vaults.git &&
+          git remote add publisher https://mittwald-machine:${NODE_AUTH_TOKEN}@github.com/mittwald/vaulTS.git &&
           git pull --rebase publisher master &&
           git push publisher master &&
           yarn publish
