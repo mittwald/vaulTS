@@ -3,6 +3,7 @@ on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
+    container: node:10-jessie
     services:
       vault:
         image: vault
