@@ -1,4 +1,3 @@
-
 export interface ITotpCreateOptionsGenerate {
     generate: true;
     exported?: boolean;
@@ -45,9 +44,9 @@ export interface ITotpListResponse {
 }
 
 export interface ITotpGenerateCodeResponse {
-   data: {
-       code: string;
-   };
+    data: {
+        code: string;
+    };
 }
 
 export interface ITotpValidateCodeResponse {

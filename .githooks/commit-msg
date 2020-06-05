@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -e
+[[ "${DEBUG}" != "true" ]] || set -x
+
+if ! which realpath > /dev/null ; then
+    echo "GNU coreutils are needed. If this is macOS, run 'brew install coreutils'."
+    exit 1
+fi
+
+SCRIPTS_DIR="scripts"
+export GIT_HOOKS="$( cd "$(dirname "$0")" ; pwd -P )"
+GIT_HOOKS_SCRIPTS="${GIT_HOOKS}/${SCRIPTS_DIR}"
+CURRENT_HOOK="commit-msg"
+
+for f in "${GIT_HOOKS_SCRIPTS}/${CURRENT_HOOK}/"*.sh ; do
+    [[ -x "${f}" ]] || continue
+    bash "${f}" ${@}
+done
+
+for d in $(find "${GIT_HOOKS}/.." -mindepth 2 -type d -iname .githooks) ; do
+    f="${d}/${CURRENT_HOOK}"
+    [[ -x "${f}" ]] || continue
+    bash "${f}" ${@}
+done

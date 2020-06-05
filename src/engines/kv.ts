@@ -1,7 +1,7 @@
-import {AbstractVaultClient} from "../VaultClient";
-import {Vault} from "../Vault";
-import {IKVCreateBody, IKVListResponse, IKVReadResponse} from "./kv_types";
-import {createCheckers} from "ts-interface-checker";
+import { AbstractVaultClient } from "../VaultClient";
+import { Vault } from "../Vault";
+import { IKVCreateBody, IKVListResponse, IKVReadResponse } from "./kv_types";
+import { createCheckers } from "ts-interface-checker";
 import kvTi from "./kv_types-ti";
 
 const tiChecker = createCheckers(kvTi);
@@ -11,7 +11,6 @@ const tiChecker = createCheckers(kvTi);
  * @see https://www.vaultproject.io/api/secret/kv/kv-v1.html
  */
 export class KVVaultClient extends AbstractVaultClient {
-
     public constructor(vault: Vault, mountPoint: string = "/kv") {
         super(vault, mountPoint);
     }
@@ -22,7 +21,7 @@ export class KVVaultClient extends AbstractVaultClient {
      * @param path
      */
     public async read(path: string): Promise<IKVReadResponse> {
-        return this.rawRead([path]).then(res => {
+        return this.rawRead([path]).then((res) => {
             tiChecker.IKVReadResponse.check(res);
             return res;
         });
@@ -34,7 +33,7 @@ export class KVVaultClient extends AbstractVaultClient {
      * @param path
      */
     public async list(path: string = ""): Promise<IKVListResponse> {
-        return this.rawList([path]).then(res => {
+        return this.rawList([path]).then((res) => {
             tiChecker.IKVListResponse.check(res);
             return res;
         });

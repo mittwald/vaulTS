@@ -1,19 +1,18 @@
 import * as fs from "fs";
-import {Vault} from "../Vault";
-import {AbstractVaultClient} from "../VaultClient";
-import {IVaultKubernetesAuthLoginConfig, IVaultKubernetesAuthLoginResponse} from "./kubernetes_types";
-import {IVaultAuthProvider} from "./token";
-import {createCheckers} from "ts-interface-checker";
+import { Vault } from "../Vault";
+import { AbstractVaultClient } from "../VaultClient";
+import { IVaultKubernetesAuthLoginConfig, IVaultKubernetesAuthLoginResponse } from "./kubernetes_types";
+import { IVaultAuthProvider } from "./token";
+import { createCheckers } from "ts-interface-checker";
 import tokenTi from "./token_types-ti";
 import kubernetesTi from "./kubernetes_types-ti";
 
 const tiChecker = createCheckers(kubernetesTi, tokenTi);
 
 export class VaultKubernetesAuthClient extends AbstractVaultClient implements IVaultAuthProvider {
-
     private config?: IVaultKubernetesAuthLoginConfig;
 
-    constructor(vault: Vault, config?: IVaultKubernetesAuthLoginConfig, mountPoint: string = "kubernetes") {
+    public constructor(vault: Vault, config?: IVaultKubernetesAuthLoginConfig, mountPoint: string = "kubernetes") {
         super(vault, ["auth", mountPoint]);
         this.config = config;
     }
@@ -27,7 +26,7 @@ export class VaultKubernetesAuthClient extends AbstractVaultClient implements IV
             throw new Error("Kubernetes Auth Client not configured");
         }
         if (!this.config.jwt) {
-            await this.initConfig(this.config);
+            this.initConfig(this.config);
         }
         return this.rawWrite(["/login"], this.config).then((res) => {
             tiChecker.IVaultTokenAuthResponse.check(res);
@@ -41,14 +40,14 @@ export class VaultKubernetesAuthClient extends AbstractVaultClient implements IV
      */
     public async login(config?: IVaultKubernetesAuthLoginConfig): Promise<IVaultKubernetesAuthLoginResponse> {
         if (config) {
-            await this.initConfig(config);
+            this.initConfig(config);
         }
         return this.auth();
     }
 
-    private async initConfig(config: IVaultKubernetesAuthLoginConfig) {
+    private initConfig(config: IVaultKubernetesAuthLoginConfig): void {
         if (!config.jwt) {
-            config.jwt = fs.readFileSync(config.jwt_path || "/run/secrets/kubernetes.io/serviceaccount/token", "utf8");
+            config.jwt = fs.readFileSync(config.jwt_path ?? "/run/secrets/kubernetes.io/serviceaccount/token", "utf8");
             delete config.jwt_path;
         }
         this.config = config;

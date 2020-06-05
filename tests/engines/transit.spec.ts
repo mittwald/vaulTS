@@ -1,5 +1,5 @@
-import {Vault} from "../../src";
-import {TransitVaultClient} from "../../src";
+import { Vault } from "../../src";
+import { TransitVaultClient } from "../../src";
 
 describe("Transit Vault Client", () => {
     let client: TransitVaultClient;
@@ -12,10 +12,7 @@ describe("Transit Vault Client", () => {
 
         test("throws error on invalid keys", async () => {
             const shouldNeverBeCalled = jest.fn();
-            const invalidKeys = [
-                "",
-                "invalid/key",
-            ];
+            const invalidKeys = ["", "invalid/key"];
             for (const key of invalidKeys) {
                 try {
                     await client.create(key);
@@ -43,7 +40,7 @@ describe("Transit Vault Client", () => {
             await client.create("delete");
             const listCreated = await client.list();
             expect(listCreated.data.keys).toContain("delete");
-            await client.update("delete", {deletion_allowed: true});
+            await client.update("delete", { deletion_allowed: true });
             await client.delete("delete");
             const listDeleted = await client.list();
             expect(listDeleted.data.keys).not.toContain("delete");
@@ -51,7 +48,7 @@ describe("Transit Vault Client", () => {
 
         test("successfully rotate key", async () => {
             await client.create("rotate");
-            await client.update("rotate", {deletion_allowed: true});
+            await client.update("rotate", { deletion_allowed: true });
             await client.rotate("rotate");
             const res = await client.read("rotate");
             expect(res.data.latest_version).toEqual(2);
@@ -60,21 +57,25 @@ describe("Transit Vault Client", () => {
 
         test("successfully export key", async () => {
             await client.create("export");
-            await client.update("export", {deletion_allowed: true, exportable: true});
-            const res = await client.export("export", {key_type: "encryption-key"});
-            expect(res.data.keys).toHaveProperty('1');
+            await client.update("export", { deletion_allowed: true, exportable: true });
+            const res = await client.export("export", { key_type: "encryption-key" });
+            expect(res.data.keys).toHaveProperty("1");
             await client.delete("export");
         });
 
         test("successfully encrypt and decrypt plaintext", async () => {
             const text = Buffer.from("test123").toString("base64");
 
-            const ciphertext = await client.encrypt("test", {
-                plaintext: text,
-            }).then(res => res.data.ciphertext);
-            const res = await client.decrypt("test", {
-                ciphertext,
-            }).then(res => res.data.plaintext);
+            const ciphertext = await client
+                .encrypt("test", {
+                    plaintext: text,
+                })
+                .then((res) => res.data.ciphertext);
+            const res = await client
+                .decrypt("test", {
+                    ciphertext,
+                })
+                .then((res) => res.data.plaintext);
 
             expect(res).toEqual(text);
         });
@@ -87,12 +88,16 @@ describe("Transit Vault Client", () => {
                 },
             ];
 
-            const result = await client.encrypt("test", {
-                batch_input: input,
-            }).then(res => res.data.batch_results);
-            const res = await client.decrypt("test", {
-                batch_input: result,
-            }).then(res => res.data.batch_results);
+            const result = await client
+                .encrypt("test", {
+                    batch_input: input,
+                })
+                .then((res) => res.data.batch_results);
+            const res = await client
+                .decrypt("test", {
+                    batch_input: result,
+                })
+                .then((res) => res.data.batch_results);
 
             expect(res).toEqual(input);
         });
@@ -123,5 +128,4 @@ describe("Transit Vault Client", () => {
             }
         });
     });
-
 });

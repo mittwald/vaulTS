@@ -1,8 +1,8 @@
-import {Vault} from "../Vault";
-import {AbstractVaultClient} from "../VaultClient";
-import {IVaultTokenAuthResponse, IVaultTokenRenewOptions, IVaultTokenRenewSelfOptions} from "./token_types";
+import { Vault } from "../Vault";
+import { AbstractVaultClient } from "../VaultClient";
+import { IVaultTokenAuthResponse, IVaultTokenRenewOptions, IVaultTokenRenewSelfOptions } from "./token_types";
 import tokenTi from "./token_types-ti";
-import {createCheckers} from "ts-interface-checker";
+import { createCheckers } from "ts-interface-checker";
 
 const tiChecker = createCheckers(tokenTi);
 
@@ -10,18 +10,21 @@ const tiChecker = createCheckers(tokenTi);
 const RENEW_BEFORE_MS = 10000;
 
 export class VaultTokenClient extends AbstractVaultClient {
-
     private state?: IVaultTokenAuthResponse;
     private expires?: Date;
+    private readonly authProvider?: IVaultAuthProvider;
 
-    get token() {
+    public constructor(vault: Vault, mountPoint: string = "token", authProvider?: IVaultAuthProvider) {
+        super(vault, ["auth", mountPoint]);
+        this.authProvider = authProvider;
+    }
+
+    public get token(): undefined | string {
         if (this.state) {
             return this.state.auth.client_token;
         }
-    }
 
-    constructor(vault: Vault, mountPoint: string = "token", private authProvider?: IVaultAuthProvider) {
-        super(vault, ["auth", mountPoint]);
+        return undefined;
     }
 
     /**
@@ -73,9 +76,10 @@ export class VaultTokenClient extends AbstractVaultClient {
     private async autoRenew(): Promise<IVaultTokenAuthResponse> {
         return this.renewSelf(undefined, true)
             .then((res) => {
-                setTimeout(this.autoRenew.bind(this), (this.expires!.getTime() - new Date().getTime()) - RENEW_BEFORE_MS );
+                setTimeout(this.autoRenew.bind(this), this.expires!.getTime() - new Date().getTime() - RENEW_BEFORE_MS);
                 return res;
-            }).catch((e) => {
+            })
+            .catch((e) => {
                 this.vault.emit("error", e);
                 throw e;
             });

@@ -1,5 +1,5 @@
-import {Vault} from "../Vault";
-import {AbstractVaultClient} from "../VaultClient";
+import { Vault } from "../Vault";
+import { AbstractVaultClient } from "../VaultClient";
 
 export interface IVaultHealthResponse {
     initialized: boolean;
@@ -15,7 +15,7 @@ export interface IVaultHealthResponse {
 }
 
 export class VaultHealthClient extends AbstractVaultClient {
-    constructor(vault: Vault, mountPoint: string) {
+    public constructor(vault: Vault, mountPoint: string) {
         super(vault, mountPoint);
     }
 

@@ -1,7 +1,7 @@
-import {createCheckers} from "ts-interface-checker";
+import { createCheckers } from "ts-interface-checker";
 import transitTi from "./transit_types-ti";
-import {Vault} from "../Vault";
-import {AbstractVaultClient} from "../VaultClient";
+import { Vault } from "../Vault";
+import { AbstractVaultClient } from "../VaultClient";
 import {
     ITransitCreateOptions,
     ITransitDecryptOptionsBatch,
@@ -18,7 +18,7 @@ import {
     ITransitReadResponse,
     ITransitUpdateOptions,
 } from "./transit_types";
-import {validateKeyName} from "../util";
+import { validateKeyName } from "../util";
 
 const transitChecker = createCheckers(transitTi);
 
@@ -27,7 +27,6 @@ const transitChecker = createCheckers(transitTi);
  * @see https://www.vaultproject.io/api/secret/transit/index.html
  */
 export class TransitVaultClient extends AbstractVaultClient {
-
     public constructor(vault: Vault, mountPoint: string = "/transit") {
         super(vault, mountPoint);
     }
@@ -87,10 +86,10 @@ export class TransitVaultClient extends AbstractVaultClient {
      */
     public async forceDelete(key: string): Promise<void> {
         validateKeyName(key);
-        if (!await this.keyExists(key)) {
+        if (!(await this.keyExists(key))) {
             return;
         }
-        await this.update(key, {deletion_allowed: true});
+        await this.update(key, { deletion_allowed: true });
         await this.delete(key);
     }
 
@@ -167,9 +166,12 @@ export class TransitVaultClient extends AbstractVaultClient {
      */
     public async encrypt(key: string, options: ITransitEncryptOptionsSingle): Promise<ITransitEncryptResponseSingle>;
     public async encrypt(key: string, options: ITransitEncryptOptionsBatch): Promise<ITransitEncryptResponseBatch>;
-    public async encrypt(key: string, options: ITransitEncryptOptionsSingle | ITransitEncryptOptionsBatch): Promise<ITransitEncryptResponseSingle | ITransitEncryptResponseBatch> {
+    public async encrypt(
+        key: string,
+        options: ITransitEncryptOptionsSingle | ITransitEncryptOptionsBatch,
+    ): Promise<ITransitEncryptResponseSingle | ITransitEncryptResponseBatch> {
         validateKeyName(key);
-        return this.rawWrite(["encrypt", key], options).then( (res) => {
+        return this.rawWrite(["encrypt", key], options).then((res) => {
             if ("batch_input" in options) {
                 transitChecker.ITransitEncryptResponseBatch.check(res);
             } else {
@@ -191,9 +193,12 @@ export class TransitVaultClient extends AbstractVaultClient {
      */
     public async decrypt(key: string, options: ITransitDecryptOptionsSingle): Promise<ITransitDecryptResponseSingle>;
     public async decrypt(key: string, options: ITransitDecryptOptionsBatch): Promise<ITransitDecryptResponseBatch>;
-    public async decrypt(key: string, options: ITransitDecryptOptionsSingle | ITransitDecryptOptionsBatch): Promise<ITransitDecryptResponseSingle | ITransitDecryptResponseBatch> {
+    public async decrypt(
+        key: string,
+        options: ITransitDecryptOptionsSingle | ITransitDecryptOptionsBatch,
+    ): Promise<ITransitDecryptResponseSingle | ITransitDecryptResponseBatch> {
         validateKeyName(key);
-        return this.rawWrite(["decrypt", key], options).then( (res) => {
+        return this.rawWrite(["decrypt", key], options).then((res) => {
             if ("batch_input" in options) {
                 transitChecker.ITransitDecryptResponseBatch.check(res);
             } else {
@@ -211,7 +216,7 @@ export class TransitVaultClient extends AbstractVaultClient {
     public async encryptText(key: string, plaintext: string): Promise<string> {
         validateKeyName(key);
         const base64 = Buffer.from(plaintext).toString("base64");
-        return this.encrypt(key, {plaintext: base64}).then((res) => res.data.ciphertext);
+        return this.encrypt(key, { plaintext: base64 }).then((res) => res.data.ciphertext);
     }
 
     /**
@@ -221,7 +226,6 @@ export class TransitVaultClient extends AbstractVaultClient {
      */
     public async decryptText(key: string, ciphertext: string): Promise<string> {
         validateKeyName(key);
-        return this.decrypt(key, {ciphertext}).then((res) => Buffer.from(res.data.plaintext, "base64").toString());
+        return this.decrypt(key, { ciphertext }).then((res) => Buffer.from(res.data.plaintext, "base64").toString());
     }
-
 }

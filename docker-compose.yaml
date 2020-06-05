@@ -1,23 +1,23 @@
-version: '3'
+version: "3"
 
 services:
   vault:
     image: vault
     ports:
-    - "8200:8200"
+      - "8200:8200"
     command: [
-      "sh",
-      "-c",
-      "(while ! nc -z 127.0.0.1 8200; \
+        "sh",
+        "-c",
+        "(while ! nc -z 127.0.0.1 8200; \
         do \
-          sleep 1; \
-          echo 'waiting for vault service ...'; \
+        sleep 1; \
+        echo 'waiting for vault service ...'; \
         done; \
         vault secrets enable transit; \
         vault secrets enable -version=1 kv; \
         vault secrets enable totp \
-      ) & vault server -dev -dev-listen-address=0.0.0.0:8200"
-    ]
+        ) & vault server -dev -dev-listen-address=0.0.0.0:8200",
+      ]
     environment:
       VAULT_DEV_ROOT_TOKEN_ID: "test"
       VAULT_TOKEN: "test"

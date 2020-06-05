@@ -1,4 +1,4 @@
-import {IVaultConfig, Vault} from "../src";
+import { IVaultConfig, Vault } from "../src";
 
 describe("Vault Integration Test (requires running vault instance)", () => {
     test("successfully queries running dev vault", async () => {

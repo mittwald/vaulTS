@@ -1,5 +1,5 @@
-import {URL} from "url";
-import {VaultRequestError} from "./Vault";
+import { URL } from "url";
+import { VaultRequestError } from "./Vault";
 
 export function resolveURL(...parts: string[]): URL {
     // clean up the list of parts by removing leading and tailing slashes
@@ -8,11 +8,11 @@ export function resolveURL(...parts: string[]): URL {
     return new URL(parts.join("/"));
 }
 
-export function validateKeyName(key: string) {
+export function validateKeyName(key: string): void {
     if (key.length === 0) {
-        throw new VaultRequestError("key is empty", {statusCode: 400});
+        throw new VaultRequestError("key is empty", { statusCode: 400 });
     }
     if (key.includes("/")) {
-        throw new VaultRequestError(`key "${key}" includes at least one illegal character ("/")`, {statusCode: 400});
+        throw new VaultRequestError(`key "${key}" includes at least one illegal character ("/")`, { statusCode: 400 });
     }
 }
