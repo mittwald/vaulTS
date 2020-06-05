@@ -25,5 +25,5 @@ jobs:
         run: >
           git remote add publisher https://mittwald-machine:${NODE_AUTH_TOKEN}@github.com/mittwald/vaulTS.git &&
           git pull --rebase publisher master &&
-          git push publisher master &&
+          git push publisher HEAD:master &&
           yarn publish
