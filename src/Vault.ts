@@ -1,4 +1,3 @@
-import { EventEmitter } from "events";
 import request from "request-promise-native";
 import { VaultKubernetesAuthClient } from "./auth/kubernetes";
 import { IVaultKubernetesAuthLoginConfig } from "./auth/kubernetes_types";
