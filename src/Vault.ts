@@ -41,12 +41,11 @@ export class VaultRequestError extends VaultError {
     }
 }
 
-export class Vault extends EventEmitter {
+export class Vault {
     public readonly config: IVaultConfig;
     private tokenClient?: VaultTokenClient;
 
     public constructor(userConfig?: IVaultConfig) {
-        super();
         this.config = {
             vaultAddress: process.env.VAULT_ADDR ?? "http://127.0.0.1:8200",
             apiVersion: "v1",

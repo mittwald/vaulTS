@@ -9,10 +9,14 @@ const tiChecker = createCheckers(tokenTi);
 // Time in ms to renew token before expiration
 const RENEW_BEFORE_MS = 10000;
 
+export type AutoRenewErrorHandler = (error: any) => void;
+
 export class VaultTokenClient extends AbstractVaultClient {
     private state?: IVaultTokenAuthResponse;
     private expires?: Date;
     private readonly authProvider?: IVaultAuthProvider;
+    private readonly autoRenewErrorHandlers = new Set<AutoRenewErrorHandler>();
+    private autoRenewEnabled = false;
 
     public constructor(vault: Vault, mountPoint: string = "token", authProvider?: IVaultAuthProvider) {
         super(vault, ["auth", mountPoint]);
@@ -69,20 +73,34 @@ export class VaultTokenClient extends AbstractVaultClient {
      * Enables a periodic job that renews the token before expiration.
      * To receive renew errors, subscribe to the "error" event on the vault instance.
      */
-    public async enableAutoRenew(): Promise<IVaultTokenAuthResponse> {
-        return this.autoRenew();
+    public async enableAutoRenew(onError?: AutoRenewErrorHandler): Promise<IVaultTokenAuthResponse> {
+        return this.autoRenew(onError);
     }
 
-    private async autoRenew(): Promise<IVaultTokenAuthResponse> {
-        return this.renewSelf(undefined, true)
-            .then((res) => {
-                setTimeout(this.autoRenew.bind(this), this.expires!.getTime() - new Date().getTime() - RENEW_BEFORE_MS);
-                return res;
-            })
-            .catch((e) => {
-                this.vault.emit("error", e);
-                throw e;
-            });
+    private async autoRenew(onError?: AutoRenewErrorHandler): Promise<IVaultTokenAuthResponse> {
+        if (onError) {
+            this.autoRenewErrorHandlers.add(onError);
+        }
+
+        const result = await this.renewSelf(undefined, true);
+
+        if (!this.autoRenewEnabled) {
+            setTimeout(() => {
+                this.autoRenew().catch((error) => {
+                    this.autoRenewErrorHandlers.forEach((handler) => {
+                        try {
+                            handler(error);
+                        } catch (handlerCallError) {
+                            // ignore errors from error handler
+                        }
+                    });
+                });
+            }, this.expires!.getTime() - new Date().getTime() - RENEW_BEFORE_MS);
+
+            this.autoRenewEnabled = true;
+        }
+
+        return result;
     }
 }
 
