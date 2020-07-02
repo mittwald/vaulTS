@@ -33,7 +33,7 @@ export interface IVaultErrorResponse {
 }
 
 export class VaultRequestError extends VaultError {
-    private readonly response: IVaultErrorResponse;
+    public readonly response: IVaultErrorResponse;
 
     public constructor(message: string, response: IVaultErrorResponse) {
         super(message);
