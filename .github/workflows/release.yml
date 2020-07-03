@@ -15,11 +15,10 @@ jobs:
           # Defaults to the user or organization that owns the workflow file
           scope: "@mittwald"
       - run: yarn
-      - run: yarn compile
       - run: git config --global user.name "Mittwald Machine"
       - run: git config --global user.email "opensource@mittwald.de"
-      - run: yarn version --new-version ${GITHUB_REF##*/} --no-git-tag-version
+      - run: yarn prepublish:all
       - name: Publish things
         env:
           NODE_AUTH_TOKEN: ${{ secrets.MITTWALD_MACHINE_TOKEN }}
-        run: yarn publish
+        run: yarn publish dist --new-version ${GITHUB_REF##*/} --no-git-tag-version
