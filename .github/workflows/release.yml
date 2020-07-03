@@ -21,4 +21,4 @@ jobs:
       - name: Publish things
         env:
           NODE_AUTH_TOKEN: ${{ secrets.MITTWALD_MACHINE_TOKEN }}
-        run: yarn publish dist --new-version ${GITHUB_REF##*/} --no-git-tag-version
+        run: yarn publish --cwd dist --new-version ${GITHUB_REF##*/} --no-git-tag-version
