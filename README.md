@@ -45,9 +45,8 @@ const k8sauth = client.KubernetesAuth({
     role: "myrole",
 });
 
-await client.Auth(k8sauth).enableAutoRenew();
-
-client.on("error", (e) => console.log(e));
+const onAutoRenewError = (e) => console.error(e);
+await client.Auth(k8sauth).enableAutoRenew(onAutoRenewError);
 
 client
     .Health()
