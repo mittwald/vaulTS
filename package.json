@@ -1,6 +1,6 @@
 {
   "version": "0.0.0",
-  "license": "ISC",
+  "license": "MIT",
   "author": "Mittwald CM Service GmbH & Co. KG",
   "name": "@mittwald/vaults",
   "description": "Almost Fully Typed Vault Client for Typescript and Javascript",
