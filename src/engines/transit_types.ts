@@ -1,7 +1,7 @@
 export type ITransitKeyType = "aes256-gcm96" | "chacha20-poly1305" | "d25519" | "ecdsa-p256" | "rsa-2048" | "rsa-4096";
 
 export type ITransitBatchPlaintext = Array<{
-    plaintext: string;
+    plaintext?: string;
     context?: string;
 }>;
 export type ITransitBatchCiphertext = Array<{
@@ -109,7 +109,7 @@ export interface ITransitDecryptOptionsBatch {
 
 export interface ITransitDecryptResponseSingle {
     data: {
-        plaintext: string;
+        plaintext?: string;
     };
 }
 

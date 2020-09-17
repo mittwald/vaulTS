@@ -7,7 +7,7 @@ import * as t from "ts-interface-checker";
 export const ITransitKeyType = t.union(t.lit("aes256-gcm96"), t.lit("chacha20-poly1305"), t.lit("d25519"), t.lit("ecdsa-p256"), t.lit("rsa-2048"), t.lit("rsa-4096"));
 
 export const ITransitBatchPlaintext = t.array(t.iface([], {
-  "plaintext": "string",
+  "plaintext": t.opt("string"),
   "context": t.opt("string"),
 }));
 
@@ -115,7 +115,7 @@ export const ITransitDecryptOptionsBatch = t.iface([], {
 
 export const ITransitDecryptResponseSingle = t.iface([], {
   "data": t.iface([], {
-    "plaintext": "string",
+    "plaintext": t.opt("string"),
   }),
 });
 
