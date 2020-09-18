@@ -7,6 +7,11 @@ import * as t from "ts-interface-checker";
 export const ITransitKeyType = t.union(t.lit("aes256-gcm96"), t.lit("chacha20-poly1305"), t.lit("d25519"), t.lit("ecdsa-p256"), t.lit("rsa-2048"), t.lit("rsa-4096"));
 
 export const ITransitBatchPlaintext = t.array(t.iface([], {
+  "plaintext": "string",
+  "context": t.opt("string"),
+}));
+
+export const ITransitRawBatchPlaintext = t.array(t.iface([], {
   "plaintext": t.opt("string"),
   "context": t.opt("string"),
 }));
@@ -115,7 +120,7 @@ export const ITransitDecryptOptionsBatch = t.iface([], {
 
 export const ITransitDecryptResponseSingle = t.iface([], {
   "data": t.iface([], {
-    "plaintext": t.opt("string"),
+    "plaintext": "string",
   }),
 });
 
@@ -125,9 +130,16 @@ export const ITransitDecryptResponseBatch = t.iface([], {
   }),
 });
 
+export const ITransitDecryptRawResponseBatch = t.iface([], {
+  "data": t.iface([], {
+    "batch_results": "ITransitRawBatchPlaintext",
+  }),
+});
+
 const exportedTypeSuite: t.ITypeSuite = {
   ITransitKeyType,
   ITransitBatchPlaintext,
+  ITransitRawBatchPlaintext,
   ITransitBatchCiphertext,
   ITransitCreateOptions,
   ITransitReadResponse,
@@ -143,5 +155,6 @@ const exportedTypeSuite: t.ITypeSuite = {
   ITransitDecryptOptionsBatch,
   ITransitDecryptResponseSingle,
   ITransitDecryptResponseBatch,
+  ITransitDecryptRawResponseBatch,
 };
 export default exportedTypeSuite;
