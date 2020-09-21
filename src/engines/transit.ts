@@ -228,12 +228,11 @@ export class TransitVaultClient extends AbstractVaultClient {
      */
     public async decryptText(key: string, ciphertext: string): Promise<string> {
         validateKeyName(key);
-        return this.decrypt(key, { ciphertext }).then((res) => {
-            if (res.data.plaintext === undefined) {
-                return "";
-            }
-            return Buffer.from(res.data.plaintext, "base64").toString();
-        });
+        const res = await this.decrypt(key, { ciphertext });
+        if (res.data.plaintext === undefined) {
+            return "";
+        }
+        return Buffer.from(res.data.plaintext, "base64").toString();
     }
 
     /*
