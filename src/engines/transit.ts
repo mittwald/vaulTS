@@ -6,6 +6,7 @@ import {
     ITransitCreateOptions,
     ITransitDecryptOptionsBatch,
     ITransitDecryptOptionsSingle,
+    ITransitDecryptRawResponseBatch,
     ITransitDecryptResponseBatch,
     ITransitDecryptResponseSingle,
     ITransitEncryptOptionsBatch,
@@ -200,11 +201,12 @@ export class TransitVaultClient extends AbstractVaultClient {
         validateKeyName(key);
         return this.rawWrite(["decrypt", key], options).then((res) => {
             if ("batch_input" in options) {
-                transitChecker.ITransitDecryptResponseBatch.check(res);
+                transitChecker.ITransitDecryptRawResponseBatch.check(res);
+                return TransitVaultClient.checkEmptyBatchValues(res as ITransitDecryptRawResponseBatch);
             } else {
                 transitChecker.ITransitDecryptResponseSingle.check(res);
+                return res;
             }
-            return res;
         });
     }
 
@@ -226,6 +228,32 @@ export class TransitVaultClient extends AbstractVaultClient {
      */
     public async decryptText(key: string, ciphertext: string): Promise<string> {
         validateKeyName(key);
-        return this.decrypt(key, { ciphertext }).then((res) => Buffer.from(res.data.plaintext, "base64").toString());
+        const res = await this.decrypt(key, { ciphertext });
+        if (res.data.plaintext === undefined) {
+            return "";
+        }
+        return Buffer.from(res.data.plaintext, "base64").toString();
+    }
+
+    /*
+     * Check to fix undefined plaintext values in a decrypt response.
+     * @see https://github.com/hashicorp/vault/issues/6140
+     *
+     * {plaintext: ""} -> encrypt -> {ciphertext: "abc...yxz"} -> decrypt -> {}
+     */
+    private static checkEmptyBatchValues(res: ITransitDecryptRawResponseBatch): ITransitDecryptResponseBatch {
+        const batchData = res.data.batch_results;
+        return {
+            ...res,
+            data: {
+                ...res.data,
+                batch_results: batchData.map((v) => {
+                    return {
+                        ...v,
+                        plaintext: v.plaintext ?? "",
+                    };
+                }),
+            },
+        };
     }
 }

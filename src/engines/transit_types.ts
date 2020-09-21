@@ -4,6 +4,10 @@ export type ITransitBatchPlaintext = Array<{
     plaintext: string;
     context?: string;
 }>;
+export type ITransitRawBatchPlaintext = Array<{
+    plaintext?: string;
+    context?: string;
+}>;
 export type ITransitBatchCiphertext = Array<{
     ciphertext: string;
     context?: string;
@@ -116,5 +120,10 @@ export interface ITransitDecryptResponseSingle {
 export interface ITransitDecryptResponseBatch {
     data: {
         batch_results: ITransitBatchPlaintext;
+    };
+}
+export interface ITransitDecryptRawResponseBatch {
+    data: {
+        batch_results: ITransitRawBatchPlaintext;
     };
 }

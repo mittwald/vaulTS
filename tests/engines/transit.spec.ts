@@ -86,6 +86,9 @@ describe("Transit Vault Client", () => {
                 {
                     plaintext: text,
                 },
+                {
+                    plaintext: "",
+                },
             ];
 
             const result = await client
@@ -95,7 +98,10 @@ describe("Transit Vault Client", () => {
                 .then((res) => res.data.batch_results);
             const res = await client
                 .decrypt("test", {
-                    batch_input: result,
+                    batch_input: result.map((r) => ({
+                        ciphertext: r.ciphertext,
+                        context: r.context,
+                    })),
                 })
                 .then((res) => res.data.batch_results);
 

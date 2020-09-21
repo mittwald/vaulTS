@@ -11,6 +11,11 @@ export const ITransitBatchPlaintext = t.array(t.iface([], {
   "context": t.opt("string"),
 }));
 
+export const ITransitRawBatchPlaintext = t.array(t.iface([], {
+  "plaintext": t.opt("string"),
+  "context": t.opt("string"),
+}));
+
 export const ITransitBatchCiphertext = t.array(t.iface([], {
   "ciphertext": "string",
   "context": t.opt("string"),
@@ -125,9 +130,16 @@ export const ITransitDecryptResponseBatch = t.iface([], {
   }),
 });
 
+export const ITransitDecryptRawResponseBatch = t.iface([], {
+  "data": t.iface([], {
+    "batch_results": "ITransitRawBatchPlaintext",
+  }),
+});
+
 const exportedTypeSuite: t.ITypeSuite = {
   ITransitKeyType,
   ITransitBatchPlaintext,
+  ITransitRawBatchPlaintext,
   ITransitBatchCiphertext,
   ITransitCreateOptions,
   ITransitReadResponse,
@@ -143,5 +155,6 @@ const exportedTypeSuite: t.ITypeSuite = {
   ITransitDecryptOptionsBatch,
   ITransitDecryptResponseSingle,
   ITransitDecryptResponseBatch,
+  ITransitDecryptRawResponseBatch,
 };
 export default exportedTypeSuite;
