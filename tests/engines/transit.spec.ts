@@ -86,6 +86,9 @@ describe("Transit Vault Client", () => {
                 {
                     plaintext: text,
                 },
+                {
+                    plaintext: "",
+                },
             ];
 
             const result = await client
