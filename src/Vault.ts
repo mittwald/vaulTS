@@ -136,7 +136,12 @@ export class Vault {
             qs: parameters,
         };
 
-        const res = await request(requestOptions);
+        let res = await request(requestOptions);
+
+        if (res.statusCode === 403) {
+            await this.tokenClient?.enableAutoRenew();
+            res = await request(requestOptions);
+        }
 
         if (!acceptedReturnCodes.some((c) => c === res.statusCode)) {
             let errorResponse: IVaultErrorResponse = {

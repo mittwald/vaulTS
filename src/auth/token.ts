@@ -7,7 +7,7 @@ import { createCheckers } from "ts-interface-checker";
 const tiChecker = createCheckers(tokenTi);
 
 // Time in ms to renew token before expiration
-const RENEW_BEFORE_MS = 10000;
+const RENEW_BEFORE_MS = 60000;
 
 export type AutoRenewErrorHandler = (error: any) => void;
 
@@ -16,7 +16,7 @@ export class VaultTokenClient extends AbstractVaultClient {
     private expires?: Date;
     private readonly authProvider?: IVaultAuthProvider;
     private readonly autoRenewErrorHandlers = new Set<AutoRenewErrorHandler>();
-    private autoRenewEnabled = false;
+    private renewTimeout?: NodeJS.Timeout;
 
     public constructor(vault: Vault, mountPoint: string = "token", authProvider?: IVaultAuthProvider) {
         super(vault, ["auth", mountPoint]);
@@ -82,23 +82,23 @@ export class VaultTokenClient extends AbstractVaultClient {
             this.autoRenewErrorHandlers.add(onError);
         }
 
+        if (this.renewTimeout) {
+            clearTimeout(this.renewTimeout);
+        }
+
         const result = await this.renewSelf(undefined, true);
 
-        if (!this.autoRenewEnabled) {
-            setTimeout(() => {
-                this.autoRenew().catch((error) => {
-                    this.autoRenewErrorHandlers.forEach((handler) => {
-                        try {
-                            handler(error);
-                        } catch (handlerCallError) {
-                            // ignore errors from error handler
-                        }
-                    });
+        this.renewTimeout = setTimeout(() => {
+            this.autoRenew().catch((error) => {
+                this.autoRenewErrorHandlers.forEach((handler) => {
+                    try {
+                        handler(error);
+                    } catch (handlerCallError) {
+                        // ignore errors from error handler
+                    }
                 });
-            }, this.expires!.getTime() - new Date().getTime() - RENEW_BEFORE_MS);
-
-            this.autoRenewEnabled = true;
-        }
+            });
+        }, this.expires!.getTime() - new Date().getTime() - RENEW_BEFORE_MS);
 
         return result;
     }
