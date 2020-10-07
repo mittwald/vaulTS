@@ -60,20 +60,25 @@ export class Vault {
         return this.config.vaultToken;
     }
 
-    public async read(path: string | string[], parameters?: HTTPGETParameters, acceptedReturnCodes?: number[]): Promise<any> {
-        return this.request("GET", path, {}, parameters, acceptedReturnCodes);
+    public async read(
+        path: string | string[],
+        parameters?: HTTPGETParameters,
+        retryWithTokenRenew?: boolean,
+        acceptedReturnCodes?: number[],
+    ): Promise<any> {
+        return this.request("GET", path, {}, parameters, retryWithTokenRenew, acceptedReturnCodes);
     }
 
-    public async write(path: string | string[], body: any, acceptedReturnCodes?: number[]): Promise<any> {
-        return this.request("POST", path, body, undefined, acceptedReturnCodes);
+    public async write(path: string | string[], body: any, retryWithTokenRenew?: boolean, acceptedReturnCodes?: number[]): Promise<any> {
+        return this.request("POST", path, body, undefined, retryWithTokenRenew, acceptedReturnCodes);
     }
 
-    public async delete(path: string | string[], body: any, acceptedReturnCodes?: number[]): Promise<any> {
-        return this.request("DELETE", path, body, undefined, acceptedReturnCodes);
+    public async delete(path: string | string[], body: any, retryWithTokenRenew?: boolean, acceptedReturnCodes?: number[]): Promise<any> {
+        return this.request("DELETE", path, body, undefined, retryWithTokenRenew, acceptedReturnCodes);
     }
 
-    public async list(path: string | string[], acceptedReturnCodes?: number[]): Promise<any> {
-        return this.request("LIST", path, {}, undefined, acceptedReturnCodes);
+    public async list(path: string | string[], retryWithTokenRenew?: boolean, acceptedReturnCodes?: number[]): Promise<any> {
+        return this.request("LIST", path, {}, undefined, retryWithTokenRenew, acceptedReturnCodes);
     }
 
     public Health(): VaultHealthClient {
@@ -113,6 +118,7 @@ export class Vault {
         path: string | string[],
         body: any,
         parameters?: HTTPGETParameters,
+        retryWithTokenRenew: boolean = true,
         acceptedReturnCodes: number[] = [200, 204],
     ): Promise<any> {
         if (typeof path === "string") {
@@ -138,7 +144,7 @@ export class Vault {
 
         let res = await request(requestOptions);
 
-        if (res.statusCode === 403) {
+        if (retryWithTokenRenew && res.statusCode === 403) {
             await this.tokenClient?.enableAutoRenew();
             res = await request(requestOptions);
         }

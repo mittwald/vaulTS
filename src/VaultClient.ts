@@ -9,19 +9,24 @@ export abstract class AbstractVaultClient {
         this.vault = vault;
     }
 
-    protected async rawRead(path: string[], parameters?: HTTPGETParameters, acceptedReturnCodes?: number[]): Promise<any> {
-        return this.vault.read([...this.mountPoint, ...path], parameters, acceptedReturnCodes);
+    protected async rawRead(
+        path: string[],
+        parameters?: HTTPGETParameters,
+        retryWithTokenRenew?: boolean,
+        acceptedReturnCodes?: number[],
+    ): Promise<any> {
+        return this.vault.read([...this.mountPoint, ...path], parameters, retryWithTokenRenew, acceptedReturnCodes);
     }
 
-    protected async rawWrite(path: string[], body?: any, acceptedReturnCodes?: number[]): Promise<any> {
-        return this.vault.write([...this.mountPoint, ...path], body, acceptedReturnCodes);
+    protected async rawWrite(path: string[], body?: any, retryWithTokenRenew?: boolean, acceptedReturnCodes?: number[]): Promise<any> {
+        return this.vault.write([...this.mountPoint, ...path], body, retryWithTokenRenew, acceptedReturnCodes);
     }
 
-    protected async rawDelete(path: string[], body?: any, acceptedReturnCodes?: number[]): Promise<any> {
-        return this.vault.delete([...this.mountPoint, ...path], body, acceptedReturnCodes);
+    protected async rawDelete(path: string[], body?: any, retryWithTokenRenew?: boolean, acceptedReturnCodes?: number[]): Promise<any> {
+        return this.vault.delete([...this.mountPoint, ...path], body, retryWithTokenRenew, acceptedReturnCodes);
     }
 
-    protected async rawList(path: string[], acceptedReturnCodes?: number[]): Promise<any> {
-        return this.vault.list([...this.mountPoint, ...path], acceptedReturnCodes);
+    protected async rawList(path: string[], retryWithTokenRenew?: boolean, acceptedReturnCodes?: number[]): Promise<any> {
+        return this.vault.list([...this.mountPoint, ...path], retryWithTokenRenew, acceptedReturnCodes);
     }
 }

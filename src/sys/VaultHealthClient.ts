@@ -24,6 +24,6 @@ export class VaultHealthClient extends AbstractVaultClient {
      * Throws an VaultRequestError if vault is unhealthy
      */
     public async health(): Promise<IVaultHealthResponse> {
-        return this.rawRead(["/health"], undefined, [200, 429]);
+        return this.rawRead(["/health"], undefined, undefined, [200, 429]);
     }
 }
