@@ -149,9 +149,16 @@ export class Vault {
 
         let res = await request(requestOptions);
 
-        if (options.retryWithTokenRenew && res.statusCode === 403) {
-            await this.tokenClient?.enableAutoRenew();
-            res = await request(requestOptions);
+        if (this.tokenClient && options.retryWithTokenRenew && res.statusCode === 403) {
+            // token could be expired, try a new one
+            await this.tokenClient.login();
+            res = await request({
+                ...requestOptions,
+                headers: {
+                    ...requestOptions.headers,
+                    "X-Vault-Token": this.token,
+                },
+            });
         }
 
         if (!options.acceptedReturnCodes!.some((c) => c === res.statusCode)) {
