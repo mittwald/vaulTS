@@ -1,4 +1,4 @@
-import { HTTPGETParameters, Vault } from "./Vault";
+import { HTTPGETParameters, Vault, VaultRequestOptions } from "./Vault";
 
 export abstract class AbstractVaultClient {
     private readonly mountPoint: string[];
@@ -9,24 +9,19 @@ export abstract class AbstractVaultClient {
         this.vault = vault;
     }
 
-    protected async rawRead(
-        path: string[],
-        parameters?: HTTPGETParameters,
-        retryWithTokenRenew?: boolean,
-        acceptedReturnCodes?: number[],
-    ): Promise<any> {
-        return this.vault.read([...this.mountPoint, ...path], parameters, retryWithTokenRenew, acceptedReturnCodes);
+    protected async rawRead(path: string[], parameters?: HTTPGETParameters, options?: VaultRequestOptions): Promise<any> {
+        return this.vault.read([...this.mountPoint, ...path], parameters, options);
     }
 
-    protected async rawWrite(path: string[], body?: any, retryWithTokenRenew?: boolean, acceptedReturnCodes?: number[]): Promise<any> {
-        return this.vault.write([...this.mountPoint, ...path], body, retryWithTokenRenew, acceptedReturnCodes);
+    protected async rawWrite(path: string[], body?: any, options?: VaultRequestOptions): Promise<any> {
+        return this.vault.write([...this.mountPoint, ...path], body, options);
     }
 
-    protected async rawDelete(path: string[], body?: any, retryWithTokenRenew?: boolean, acceptedReturnCodes?: number[]): Promise<any> {
-        return this.vault.delete([...this.mountPoint, ...path], body, retryWithTokenRenew, acceptedReturnCodes);
+    protected async rawDelete(path: string[], body?: any, options?: VaultRequestOptions): Promise<any> {
+        return this.vault.delete([...this.mountPoint, ...path], body, options);
     }
 
-    protected async rawList(path: string[], retryWithTokenRenew?: boolean, acceptedReturnCodes?: number[]): Promise<any> {
-        return this.vault.list([...this.mountPoint, ...path], retryWithTokenRenew, acceptedReturnCodes);
+    protected async rawList(path: string[], options?: VaultRequestOptions): Promise<any> {
+        return this.vault.list([...this.mountPoint, ...path], options);
     }
 }

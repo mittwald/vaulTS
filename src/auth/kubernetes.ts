@@ -28,7 +28,9 @@ export class VaultKubernetesAuthClient extends AbstractVaultClient implements IV
         if (!this.config.jwt) {
             this.initConfig(this.config);
         }
-        return this.rawWrite(["/login"], this.config, false).then((res) => {
+        return this.rawWrite(["/login"], this.config, {
+            retryWithTokenRenew: false,
+        }).then((res) => {
             tiChecker.IVaultTokenAuthResponse.check(res);
             return res;
         });

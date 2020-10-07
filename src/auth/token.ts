@@ -52,7 +52,9 @@ export class VaultTokenClient extends AbstractVaultClient {
     public async renewSelf(options?: IVaultTokenRenewSelfOptions, authProviderFallback: boolean = false): Promise<IVaultTokenAuthResponse> {
         let newState: IVaultTokenAuthResponse;
         try {
-            newState = await this.rawWrite(["/renew-self"], options, false).then((res) => {
+            newState = await this.rawWrite(["/renew-self"], options, {
+                retryWithTokenRenew: false,
+            }).then((res) => {
                 tiChecker.IVaultTokenAuthResponse.check(res);
                 return res;
             });
