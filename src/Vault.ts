@@ -161,7 +161,7 @@ export class Vault {
             });
         }
 
-        if (!options.acceptedReturnCodes!.some((c) => c === res.statusCode)) {
+        if (!options.acceptedReturnCodes?.includes(res.statusCode)) {
             let errorResponse: IVaultErrorResponse = {
                 statusCode: res.statusCode,
             };
