@@ -40,6 +40,11 @@ export class VaultRequestError extends VaultError {
     }
 }
 
+export interface VaultRequestOptions {
+    retryWithTokenRenew?: boolean;
+    acceptedReturnCodes?: number[];
+}
+
 export class Vault {
     public readonly config: IVaultConfig;
     private tokenClient?: VaultTokenClient;
@@ -60,20 +65,20 @@ export class Vault {
         return this.config.vaultToken;
     }
 
-    public async read(path: string | string[], parameters?: HTTPGETParameters, acceptedReturnCodes?: number[]): Promise<any> {
-        return this.request("GET", path, {}, parameters, acceptedReturnCodes);
+    public async read(path: string | string[], parameters?: HTTPGETParameters, options?: VaultRequestOptions): Promise<any> {
+        return this.request("GET", path, {}, parameters, options);
     }
 
-    public async write(path: string | string[], body: any, acceptedReturnCodes?: number[]): Promise<any> {
-        return this.request("POST", path, body, undefined, acceptedReturnCodes);
+    public async write(path: string | string[], body: any, options?: VaultRequestOptions): Promise<any> {
+        return this.request("POST", path, body, undefined, options);
     }
 
-    public async delete(path: string | string[], body: any, acceptedReturnCodes?: number[]): Promise<any> {
-        return this.request("DELETE", path, body, undefined, acceptedReturnCodes);
+    public async delete(path: string | string[], body: any, options?: VaultRequestOptions): Promise<any> {
+        return this.request("DELETE", path, body, undefined, options);
     }
 
-    public async list(path: string | string[], acceptedReturnCodes?: number[]): Promise<any> {
-        return this.request("LIST", path, {}, undefined, acceptedReturnCodes);
+    public async list(path: string | string[], options?: VaultRequestOptions): Promise<any> {
+        return this.request("LIST", path, {}, undefined, options);
     }
 
     public Health(): VaultHealthClient {
@@ -113,8 +118,14 @@ export class Vault {
         path: string | string[],
         body: any,
         parameters?: HTTPGETParameters,
-        acceptedReturnCodes: number[] = [200, 204],
+        options?: VaultRequestOptions,
     ): Promise<any> {
+        options = {
+            retryWithTokenRenew: true,
+            acceptedReturnCodes: [200, 204],
+            ...options,
+        };
+
         if (typeof path === "string") {
             path = [path];
         }
@@ -136,9 +147,21 @@ export class Vault {
             qs: parameters,
         };
 
-        const res = await request(requestOptions);
+        let res = await request(requestOptions);
 
-        if (!acceptedReturnCodes.some((c) => c === res.statusCode)) {
+        if (this.tokenClient && options.retryWithTokenRenew && res.statusCode === 403) {
+            // token could be expired, try a new one
+            await this.tokenClient.login();
+            res = await request({
+                ...requestOptions,
+                headers: {
+                    ...requestOptions.headers,
+                    "X-Vault-Token": this.token,
+                },
+            });
+        }
+
+        if (!options.acceptedReturnCodes?.includes(res.statusCode)) {
             let errorResponse: IVaultErrorResponse = {
                 statusCode: res.statusCode,
             };

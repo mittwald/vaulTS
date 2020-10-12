@@ -6,17 +6,9 @@ import { createCheckers } from "ts-interface-checker";
 
 const tiChecker = createCheckers(tokenTi);
 
-// Time in ms to renew token before expiration
-const RENEW_BEFORE_MS = 10000;
-
-export type AutoRenewErrorHandler = (error: any) => void;
-
 export class VaultTokenClient extends AbstractVaultClient {
     private state?: IVaultTokenAuthResponse;
-    private expires?: Date;
     private readonly authProvider?: IVaultAuthProvider;
-    private readonly autoRenewErrorHandlers = new Set<AutoRenewErrorHandler>();
-    private autoRenewEnabled = false;
 
     public constructor(vault: Vault, mountPoint: string = "token", authProvider?: IVaultAuthProvider) {
         super(vault, ["auth", mountPoint]);
@@ -52,7 +44,9 @@ export class VaultTokenClient extends AbstractVaultClient {
     public async renewSelf(options?: IVaultTokenRenewSelfOptions, authProviderFallback: boolean = false): Promise<IVaultTokenAuthResponse> {
         let newState: IVaultTokenAuthResponse;
         try {
-            newState = await this.rawWrite(["/renew-self"], options).then((res) => {
+            newState = await this.rawWrite(["/renew-self"], options, {
+                retryWithTokenRenew: false,
+            }).then((res) => {
                 tiChecker.IVaultTokenAuthResponse.check(res);
                 return res;
             });
@@ -62,45 +56,19 @@ export class VaultTokenClient extends AbstractVaultClient {
             }
             newState = await this.authProvider.auth();
         }
-        const expires = new Date();
-        expires.setSeconds(expires.getSeconds() + newState.auth.lease_duration);
         this.state = newState;
-        this.expires = expires;
         return this.state;
     }
 
     /**
-     * Enables a periodic job that renews the token before expiration.
-     * To receive renew errors, subscribe to the "error" event on the vault instance.
+     * Updates the token using the configured authProvider
      */
-    public async enableAutoRenew(onError?: AutoRenewErrorHandler): Promise<IVaultTokenAuthResponse> {
-        return this.autoRenew(onError);
-    }
-
-    private async autoRenew(onError?: AutoRenewErrorHandler): Promise<IVaultTokenAuthResponse> {
-        if (onError) {
-            this.autoRenewErrorHandlers.add(onError);
+    public async login(): Promise<IVaultTokenAuthResponse> {
+        if (!this.authProvider) {
+            throw new Error("No Authprovider configured");
         }
-
-        const result = await this.renewSelf(undefined, true);
-
-        if (!this.autoRenewEnabled) {
-            setTimeout(() => {
-                this.autoRenew().catch((error) => {
-                    this.autoRenewErrorHandlers.forEach((handler) => {
-                        try {
-                            handler(error);
-                        } catch (handlerCallError) {
-                            // ignore errors from error handler
-                        }
-                    });
-                });
-            }, this.expires!.getTime() - new Date().getTime() - RENEW_BEFORE_MS);
-
-            this.autoRenewEnabled = true;
-        }
-
-        return result;
+        this.state = await this.authProvider.auth();
+        return this.state;
     }
 }
 
