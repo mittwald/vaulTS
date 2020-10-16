@@ -1,4 +1,4 @@
-import { Vault } from "../../src";
+import { Vault, VaultDecryptionKeyNotFoundError } from "../../src";
 import { TransitVaultClient } from "../../src";
 import * as util from "util";
 
@@ -133,8 +133,7 @@ describe("Transit Vault Client", () => {
             try {
                 await client.decryptText("unknownkey", encrypted);
             } catch (err) {
-                testLogger(err.response.body.errors);
-                expect(err.response.statusCode).toEqual(400);
+                expect(err).toBeInstanceOf(VaultDecryptionKeyNotFoundError);
             }
         });
 
@@ -153,8 +152,7 @@ describe("Transit Vault Client", () => {
                     ],
                 });
             } catch (err) {
-                testLogger(err.response.body.errors);
-                expect(err.response.statusCode).toEqual(400);
+                expect(err).toBeInstanceOf(VaultDecryptionKeyNotFoundError);
             }
         });
     });
