@@ -179,27 +179,27 @@ export class Vault {
                 errorResponse,
             );
 
-            throw convertToSpecificError(tmpErr);
+            throw this.convertToSpecificError(tmpErr);
         }
 
         return res.body;
     }
-}
 
-function convertToSpecificError(error: VaultRequestError): VaultRequestError {
-    if (checkError(error, 400, "encryption key not found")) {
-        return new VaultDecryptionKeyNotFoundError(`DecryptionKeyNotFound: ${error.message}`, error.response);
-    }
-    return error;
-}
-
-function checkError(error: VaultRequestError, expectedCode: number, expectedMsg: string): boolean {
-    const { statusCode, body } = error.response;
-    if (expectedCode !== statusCode) {
-        return false;
+    private convertToSpecificError(error: VaultRequestError): VaultRequestError {
+        if (this.checkError(error, 400, "encryption key not found")) {
+            return new VaultDecryptionKeyNotFoundError(`DecryptionKeyNotFound: ${error.message}`, error.response);
+        }
+        return error;
     }
 
-    const errors = body?.errors ?? [];
+    private checkError(error: VaultRequestError, expectedCode: number, expectedMsg: string): boolean {
+        const { statusCode, body } = error.response;
+        if (expectedCode !== statusCode) {
+            return false;
+        }
 
-    return errors.some((e) => e.includes(expectedMsg));
+        const errors = body?.errors ?? [];
+
+        return errors.some((e) => e.includes(expectedMsg));
+    }
 }
