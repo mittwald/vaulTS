@@ -179,18 +179,18 @@ export class Vault {
                 errorResponse,
             );
 
-            throwSpecificError(tmpErr);
+            throw convertToSpecificError(tmpErr);
         }
 
         return res.body;
     }
 }
 
-function throwSpecificError(error: VaultRequestError) {
+function convertToSpecificError(error: VaultRequestError): VaultRequestError {
     if (checkError(error, 400, "encryption key not found")) {
-        throw new VaultDecryptionKeyNotFoundError(`DecryptionKeyNotFound: ${error.message}`, error.response);
+        return new VaultDecryptionKeyNotFoundError(`DecryptionKeyNotFound: ${error.message}`, error.response);
     }
-    throw error;
+    return error;
 }
 
 function checkError(error: VaultRequestError, expectedCode: number, expectedMsg: string): boolean {
