@@ -40,6 +40,8 @@ export class VaultRequestError extends VaultError {
     }
 }
 
+export class VaultDecryptionKeyNotFoundError extends VaultRequestError {}
+
 export interface VaultRequestOptions {
     retryWithTokenRenew?: boolean;
     acceptedReturnCodes?: number[];
@@ -172,12 +174,32 @@ export class Vault {
                     body: res.body,
                 };
             }
-            throw new VaultRequestError(
+            const tmpErr = new VaultRequestError(
                 `Request to ${requestOptions.uri.toString()} failed (Status ${errorResponse.statusCode})`,
                 errorResponse,
             );
+
+            throw this.convertToSpecificError(tmpErr);
         }
 
         return res.body;
+    }
+
+    private convertToSpecificError(error: VaultRequestError): VaultRequestError {
+        if (this.checkError(error, 400, "encryption key not found")) {
+            return new VaultDecryptionKeyNotFoundError(`DecryptionKeyNotFound: ${error.message}`, error.response);
+        }
+        return error;
+    }
+
+    private checkError(error: VaultRequestError, expectedCode: number, expectedMsg: string): boolean {
+        const { statusCode, body } = error.response;
+        if (expectedCode !== statusCode) {
+            return false;
+        }
+
+        const errors = body?.errors ?? [];
+
+        return errors.some((e) => e.includes(expectedMsg));
     }
 }
