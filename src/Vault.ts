@@ -174,7 +174,7 @@ export class Vault {
                     body: res.body,
                 };
             }
-            let tmpErr = new VaultRequestError(
+            const tmpErr = new VaultRequestError(
                 `Request to ${requestOptions.uri.toString()} failed (Status ${errorResponse.statusCode})`,
                 errorResponse,
             );
