@@ -1,5 +1,8 @@
 import { Vault } from "../../src";
 import { TransitVaultClient } from "../../src";
+import * as util from "util";
+
+const testLogger = util.debuglog("vault-test");
 
 describe("Transit Vault Client", () => {
     let client: TransitVaultClient;
@@ -125,12 +128,33 @@ describe("Transit Vault Client", () => {
             }
         });
 
-        test("should response with 404 if the keyID for decryption does not exists", async () => {
+        test("should respond with 404 if the keyID for decryption does not exist", async () => {
             const encrypted = await client.encryptText("404test", "plainText");
             try {
-                await client.decryptText("unknown key", encrypted);
+                await client.decryptText("unknownkey", encrypted);
             } catch (err) {
-                expect(err.response.statusCode).toEqual(404);
+                testLogger(err.response.body.errors);
+                expect(err.response.statusCode).toEqual(400);
+            }
+        });
+
+        test("should respond with 404 if the keyID for decryption does not exist (batch)", async () => {
+            const encrypted = await client.encryptText("404test", "plainText");
+            const encrypted2 = await client.encryptText("404test", "plainText");
+            try {
+                await client.decrypt("unknownkey", {
+                    batch_input: [
+                        {
+                            ciphertext: encrypted,
+                        },
+                        {
+                            ciphertext: encrypted2,
+                        },
+                    ],
+                });
+            } catch (err) {
+                testLogger(err.response.body.errors);
+                expect(err.response.statusCode).toEqual(400);
             }
         });
     });
