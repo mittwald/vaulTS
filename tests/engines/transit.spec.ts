@@ -117,14 +117,14 @@ describe("Transit Vault Client", () => {
             expect(dec).toEqual("hello");
         });
 
-        test("should response with 400 if the keyID for decryption is invalid", async () => {
-            const encrypted = await client.encryptText("400test", "plainText");
+        test("should respond with 500 if the keyID for decryption is invalid", async () => {
+            const encrypted = await client.encryptText("500test", "plainText");
             const invalidKeyID = "invalid";
             await client.create(invalidKeyID);
             try {
                 await client.decryptText(invalidKeyID, encrypted);
             } catch (err) {
-                expect(err.response.statusCode).toEqual(400);
+                expect(err.response.statusCode).toEqual(500);
             }
         });
 
