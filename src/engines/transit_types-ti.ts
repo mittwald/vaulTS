@@ -120,7 +120,7 @@ export const ITransitDecryptOptionsBatch = t.iface([], {
 
 export const ITransitDecryptResponseSingle = t.iface([], {
   "data": t.iface([], {
-    "plaintext": "string",
+    "plaintext": t.union("string", "undefined"),
   }),
 });
 

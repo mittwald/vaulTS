@@ -113,7 +113,7 @@ export interface ITransitDecryptOptionsBatch {
 
 export interface ITransitDecryptResponseSingle {
     data: {
-        plaintext: string;
+        plaintext: string | undefined;
     };
 }
 

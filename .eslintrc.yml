@@ -15,7 +15,7 @@ rules:
     - error
     - default: array-simple
   "@typescript-eslint/await-thenable": error
-  "@typescript-eslint/class-name-casing": error
+  #  "@typescript-eslint/class-name-casing": error
   "@typescript-eslint/consistent-type-assertions": off
   "@typescript-eslint/consistent-type-definitions":
     - error
@@ -26,7 +26,7 @@ rules:
       allowHigherOrderFunctions: true
       allowTypedFunctionExpressions: true
   "@typescript-eslint/explicit-member-accessibility": error
-  "@typescript-eslint/generic-type-naming": error
+  #  "@typescript-eslint/generic-type-naming": error
   "@typescript-eslint/member-delimiter-style":
     - error
     - multiline:
