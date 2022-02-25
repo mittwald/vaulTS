@@ -25,12 +25,16 @@ export class VaultKubernetesAuthClient extends AbstractVaultClient implements IV
         if (!this.config) {
             throw new Error("Kubernetes Auth Client not configured");
         }
-        if (!this.config.jwt) {
-            this.initConfig(this.config);
-        }
-        return this.rawWrite(["/login"], this.config, {
-            retryWithTokenRenew: false,
-        }).then((res) => {
+        return this.rawWrite(
+            ["/login"],
+            {
+                role: this.config.role,
+                jwt: this.config.jwt ?? this.loadJwtFromPath(),
+            },
+            {
+                retryWithTokenRenew: false,
+            },
+        ).then((res) => {
             tiChecker.IVaultTokenAuthResponse.check(res);
             return res;
         });
@@ -42,16 +46,16 @@ export class VaultKubernetesAuthClient extends AbstractVaultClient implements IV
      */
     public async login(config?: IVaultKubernetesAuthLoginConfig): Promise<IVaultKubernetesAuthLoginResponse> {
         if (config) {
-            this.initConfig(config);
+            this.config = config;
         }
         return this.auth();
     }
 
-    private initConfig(config: IVaultKubernetesAuthLoginConfig): void {
-        if (!config.jwt) {
-            config.jwt = fs.readFileSync(config.jwt_path ?? "/run/secrets/kubernetes.io/serviceaccount/token", "utf8");
-            delete config.jwt_path;
+    private loadJwtFromPath(): string {
+        if (!this.config) {
+            throw new Error("Kubernetes Auth Client not configured");
         }
-        this.config = config;
+        const jwt = fs.readFileSync(this.config.jwt_path ?? "/run/secrets/kubernetes.io/serviceaccount/token", "utf8");
+        return jwt;
     }
 }
