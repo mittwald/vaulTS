@@ -20,5 +20,5 @@ jobs:
       - run: yarn prepublish:all
       - name: Publish things
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.MITTWALD_MACHINE_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: yarn publish dist --new-version ${GITHUB_REF##*/} --no-git-tag-version
