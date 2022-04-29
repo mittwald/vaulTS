@@ -8,6 +8,7 @@ import { resolveURL } from "./util";
 import { TotpVaultClient } from "./engines/totp";
 import { KVVaultClient } from "./engines/kv";
 import { KV2VaultClient } from "./engines";
+import { promises as fs } from "fs";
 
 export type VaultHTTPMethods = "GET" | "POST" | "DELETE" | "LIST";
 export interface HTTPGETParameters {
@@ -18,6 +19,7 @@ export interface IVaultConfig {
     vaultAddress?: string;
     vaultToken?: string;
     vaultCaCertificate?: string;
+    vaultCaCertificatePath?: string;
     vaultNamespace?: string;
     apiVersion?: string;
 }
@@ -133,6 +135,10 @@ export class Vault {
         }
         const uri = resolveURL(this.config.vaultAddress!, this.config.apiVersion!, ...path);
 
+        if (this.config.vaultCaCertificatePath && !this.config.vaultCaCertificate) {
+            await this.loadCACert();
+        }
+
         const requestOptions: request.Options = {
             method,
             uri: uri.toString(),
@@ -149,18 +155,32 @@ export class Vault {
             qs: parameters,
         };
 
-        let res = await request(requestOptions);
+        let res;
+        let retry = false;
+        try {
+            res = await request(requestOptions);
+        } catch (e) {
+            if (e.error && e.error.code === "CERT_SIGNATURE_FAILURE" && this.config.vaultCaCertificatePath) {
+                await this.loadCACert();
+                requestOptions.ca = this.config.vaultCaCertificate;
+                retry = true;
+            } else {
+                throw e;
+            }
+        }
 
         if (this.tokenClient && options.retryWithTokenRenew && res.statusCode === 403) {
             // token could be expired, try a new one
             await this.tokenClient.login();
-            res = await request({
-                ...requestOptions,
-                headers: {
-                    ...requestOptions.headers,
-                    "X-Vault-Token": this.token,
-                },
-            });
+            requestOptions.headers = {
+                ...requestOptions.headers,
+                "X-Vault-Token": this.token,
+            };
+            retry = true;
+        }
+
+        if (retry) {
+            res = await request(requestOptions);
         }
 
         if (!options.acceptedReturnCodes?.includes(res.statusCode)) {
@@ -201,5 +221,12 @@ export class Vault {
         const errors = body?.errors ?? [];
 
         return errors.some((e) => e.includes(expectedMsg));
+    }
+
+    private async loadCACert(): Promise<void> {
+        if (this.config.vaultCaCertificatePath) {
+            const cert = await fs.readFile(this.config.vaultCaCertificatePath, "utf8");
+            this.config.vaultCaCertificate = cert;
+        }
     }
 }

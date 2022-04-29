@@ -35,10 +35,10 @@ const client = new Vault({
 ### Kubernetes In-Cluster Example
 
 ```js
-const cert = await fs.readFile("../vault-cacert", "utf8");
 const client = new Vault({
     vaultAddress: "https://vault:8200",
     vaultCaCertificate: cert,
+    vaultCaCertificatePath: "../vault-cacert",
 });
 
 const k8sauth = client.KubernetesAuth({
