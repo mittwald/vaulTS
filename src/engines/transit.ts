@@ -13,11 +13,19 @@ import {
     ITransitEncryptOptionsSingle,
     ITransitEncryptResponseBatch,
     ITransitEncryptResponseSingle,
+    ITransitSignOptionsSingle,
+    ITransitSignOptionsBatch,
     ITransitExportOptions,
     ITransitExportResponse,
     ITransitListResponse,
     ITransitReadResponse,
     ITransitUpdateOptions,
+    ITransitSignResponseSingle,
+    ITransitSignResponseBatch,
+    ITransitVerifyOptionsSingle,
+    ITransitVerifyResponseSingle,
+    ITransitVerifyOptionsBatch,
+    ITransitVerifyResponseBatch,
 } from "./transit_types";
 import { validateKeyName } from "../util";
 
@@ -207,6 +215,71 @@ export class TransitVaultClient extends AbstractVaultClient {
                 transitChecker.ITransitDecryptResponseSingle.check(res);
                 return res;
             }
+        });
+    }
+
+    /**
+     * Returns the cryptographic signature of the given data using the named key and the specified hash algorithm
+     * @see https://www.vaultproject.io/api-docs/secret/transit#sign-data
+     * @param key
+     * @param options
+     *
+     * @param options.input Specifies the base64 encoded input data. One of input or batch_input must be supplied.
+     * @param options.batch_input Specifies a list of items for processing. When this parameter is set, any supplied 'input' or 'context' parameters will be ignored.
+     * @param options.key_version Specifies the version of the key to use for encryption. If not set, uses the latest version. Must be greater than or equal to the key's min_encryption_version, if set.
+     * @param options.context Base64 encoded context for key derivation. Required if key derivation is enabled.
+     * @param options.hash_algorithm Specifies the hash algorithm to use for supporting key types.
+     * @param options.prehashed Set to true when the input is already hashed. When set, input is expected to be base64-encoded binary hashed data, not hex-formatted.
+     * @param options.signature_algorithm When using a RSA key, specifies the RSA signature algorithm to use for signing.
+     * @param options.marshaling_algorithm Specifies the way in which the signature should be marshaled.
+     */
+    public async sign(key: string, options: ITransitSignOptionsSingle): Promise<ITransitSignResponseSingle>;
+    public async sign(key: string, options: ITransitSignOptionsBatch): Promise<ITransitSignResponseBatch>;
+    public async sign(
+        key: string,
+        options: ITransitSignOptionsSingle | ITransitSignOptionsBatch,
+    ): Promise<ITransitSignResponseSingle | ITransitSignResponseBatch> {
+        validateKeyName(key);
+        return this.rawWrite(["sign", key], options).then((res) => {
+            if ("batch_input" in options) {
+                transitChecker.ITransitSignResponseBatch.check(res);
+            } else {
+                transitChecker.ITransitSignResponseSingle.check(res);
+            }
+            return res;
+        });
+    }
+
+    /**
+     * Returns whether the provided signature is valid for the given data.
+     * @see https://www.vaultproject.io/api-docs/secret/transit#verify-signed-data
+     * @param key
+     * @param options
+     *
+     * @param options.input Specifies the base64 encoded input data. One of input or batch_input must be supplied.
+     * @param options.batch_input  Specifies a list of items for processing. When this parameter is set, any supplied 'input', 'hmac' or 'signature' parameters will be ignored. All items in the batch must consistently supply either 'hmac' or 'signature' parameters.
+     * @param options.signature Specifies the signature output from the /transit/sign function. Either this must be supplied or hmac must be supplied.
+     * @param options.hmac Specifies the signature output from the /transit/hmac function. Either this must be supplied or signature must be supplied.
+     * @param options.hash_algorithm Specifies the hash algorithm to use.
+     * @param options.context Base64 encoded context for key derivation.
+     * @param options.prehashed Set to true when the input is already hashed.
+     * @param options.signature_algorithm When using a RSA key, specifies the RSA signature algorithm to use for signature verification.
+     * @param options.marshaling_algorithm Specifies the way in which the signature was originally marshaled.
+     */
+    public async verify(key: string, options: ITransitVerifyOptionsSingle): Promise<ITransitVerifyResponseSingle>;
+    public async verify(key: string, options: ITransitVerifyOptionsBatch): Promise<ITransitVerifyResponseBatch>;
+    public async verify(
+        key: string,
+        options: ITransitVerifyOptionsSingle | ITransitVerifyOptionsBatch,
+    ): Promise<ITransitVerifyResponseSingle | ITransitVerifyResponseBatch> {
+        validateKeyName(key);
+        return this.rawWrite(["verify", key], options).then((res) => {
+            if ("batch_input" in options) {
+                transitChecker.ITransitVerifyResponseBatch.check(res);
+            } else {
+                transitChecker.ITransitVerifyResponseSingle.check(res);
+            }
+            return res;
         });
     }
 

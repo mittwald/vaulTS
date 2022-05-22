@@ -6,6 +6,12 @@ import * as t from "ts-interface-checker";
 
 export const ITransitKeyType = t.union(t.lit("aes256-gcm96"), t.lit("chacha20-poly1305"), t.lit("d25519"), t.lit("ecdsa-p256"), t.lit("rsa-2048"), t.lit("rsa-4096"));
 
+export const ITransitSignHashAlgorithm = t.union(t.lit("sha1"), t.lit("sha2-224"), t.lit("sha2-256"), t.lit("sha2-384"), t.lit("sha2-512"), t.lit("sha3-224"), t.lit("sha3-256"), t.lit("sha3-384"), t.lit("sha3-512"));
+
+export const ITransitSignSignatureAlgorithm = t.union(t.lit("pss"), t.lit("pkcs1v15"));
+
+export const ITransitSignMarshalingAlgorithm = t.union(t.lit("asn1"), t.lit("jws"));
+
 export const ITransitBatchPlaintext = t.array(t.iface([], {
   "plaintext": "string",
   "context": t.opt("string"),
@@ -19,6 +25,29 @@ export const ITransitRawBatchPlaintext = t.array(t.iface([], {
 export const ITransitBatchCiphertext = t.array(t.iface([], {
   "ciphertext": "string",
   "context": t.opt("string"),
+}));
+
+export const ITransitSignBatchInput = t.array(t.iface([], {
+  "input": "string",
+  "context": t.opt("string"),
+}));
+
+export const ITransitVerifyBatchInputSignature = t.array(t.iface([], {
+  "input": "string",
+  "signature": "string",
+  "context": t.opt("string"),
+}));
+
+export const ITransitVerifyBatchInputHMAC = t.array(t.iface([], {
+  "input": "string",
+  "hmac": "string",
+  "context": t.opt("string"),
+}));
+
+export const ITransitSignBatchOutput = t.array(t.iface([], {
+  "signature": t.opt("string"),
+  "publickey": t.opt("string"),
+  "error": t.opt("string"),
 }));
 
 export const ITransitCreateOptions = t.iface([], {
@@ -136,11 +165,82 @@ export const ITransitDecryptRawResponseBatch = t.iface([], {
   }),
 });
 
+export const ITransitSignOptionsSingle = t.iface([], {
+  "key_version": t.opt("number"),
+  "hash_algorithm": t.opt("ITransitSignHashAlgorithm"),
+  "input": "string",
+  "context": t.opt("string"),
+  "prehashed": t.opt("boolean"),
+  "signature_algorithm": t.opt("ITransitSignSignatureAlgorithm"),
+  "marshaling_algorithm": t.opt("ITransitSignMarshalingAlgorithm"),
+});
+
+export const ITransitSignOptionsBatch = t.iface([], {
+  "key_version": t.opt("number"),
+  "hash_algorithm": t.opt("ITransitSignHashAlgorithm"),
+  "batch_input": "ITransitSignBatchInput",
+  "prehashed": t.opt("boolean"),
+  "signature_algorithm": t.opt("ITransitSignSignatureAlgorithm"),
+  "marshaling_algorithm": t.opt("ITransitSignMarshalingAlgorithm"),
+});
+
+export const ITransitSignResponseSingle = t.iface([], {
+  "data": t.iface([], {
+    "signature": t.union("string", "undefined"),
+  }),
+});
+
+export const ITransitSignResponseBatch = t.iface([], {
+  "data": t.iface([], {
+    "batch_results": "ITransitSignBatchOutput",
+  }),
+});
+
+export const ITransitVerifyOptionsSingle = t.iface([], {
+  "input": "string",
+  "signature": t.opt("string"),
+  "hmac": t.opt("string"),
+  "hash_algorithm": t.opt("ITransitSignHashAlgorithm"),
+  "context": t.opt("string"),
+  "prehashed": t.opt("boolean"),
+  "signature_algorithm": t.opt("ITransitSignSignatureAlgorithm"),
+  "marshaling_algorithm": t.opt("ITransitSignMarshalingAlgorithm"),
+});
+
+export const ITransitVerifyOptionsBatch = t.iface([], {
+  "batch_input": t.union("ITransitVerifyBatchInputSignature", "ITransitVerifyBatchInputHMAC"),
+  "hash_algorithm": t.opt("ITransitSignHashAlgorithm"),
+  "prehashed": t.opt("boolean"),
+  "signature_algorithm": t.opt("ITransitSignSignatureAlgorithm"),
+  "marshaling_algorithm": t.opt("ITransitSignMarshalingAlgorithm"),
+});
+
+export const ITransitVerifyResponseSingle = t.iface([], {
+  "data": t.iface([], {
+    "valid": "boolean",
+  }),
+});
+
+export const ITransitVerifyResponseBatch = t.iface([], {
+  "data": t.iface([], {
+    "batch_results": t.array(t.iface([], {
+      "valid": "boolean",
+    })),
+  }),
+});
+
 const exportedTypeSuite: t.ITypeSuite = {
   ITransitKeyType,
+  ITransitSignHashAlgorithm,
+  ITransitSignSignatureAlgorithm,
+  ITransitSignMarshalingAlgorithm,
   ITransitBatchPlaintext,
   ITransitRawBatchPlaintext,
   ITransitBatchCiphertext,
+  ITransitSignBatchInput,
+  ITransitVerifyBatchInputSignature,
+  ITransitVerifyBatchInputHMAC,
+  ITransitSignBatchOutput,
   ITransitCreateOptions,
   ITransitReadResponse,
   ITransitListResponse,
@@ -156,5 +256,13 @@ const exportedTypeSuite: t.ITypeSuite = {
   ITransitDecryptResponseSingle,
   ITransitDecryptResponseBatch,
   ITransitDecryptRawResponseBatch,
+  ITransitSignOptionsSingle,
+  ITransitSignOptionsBatch,
+  ITransitSignResponseSingle,
+  ITransitSignResponseBatch,
+  ITransitVerifyOptionsSingle,
+  ITransitVerifyOptionsBatch,
+  ITransitVerifyResponseSingle,
+  ITransitVerifyResponseBatch,
 };
 export default exportedTypeSuite;

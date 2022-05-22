@@ -155,5 +155,108 @@ describe("Transit Vault Client", () => {
                 expect(err).toBeInstanceOf(VaultDecryptionKeyNotFoundError);
             }
         });
+
+        test("successfully create and read signing key", async () => {
+            await client.create("test_sign", {
+                type: "ecdsa-p256",
+            });
+            const res = await client.read("test_sign");
+        });
+
+        test("should respond with 400 if using a key that does not support signing", async () => {
+            await client.create("test_cannot_sign", {
+                type: "aes256-gcm96",
+            });
+
+            const text = Buffer.from("test123").toString("base64");
+
+            try {
+                await client.sign("test_cannot_sign", { input: text });
+            } catch (err) {
+                expect(err.response.statusCode).toEqual(400);
+            }
+        });
+
+        test("successfully sign and verify", async () => {
+            const text = Buffer.from("test123").toString("base64");
+
+            const signature = await client
+                .sign("test_sign", {
+                    input: text,
+                })
+                .then((res) => res.data.signature);
+            const res = await client.verify("test_sign", {
+                input: text,
+                signature,
+            });
+        });
+
+        test("successfully sign and verify (batch)", async () => {
+            const text = Buffer.from("test123").toString("base64");
+
+            const signatures = await client
+                .sign("test_sign", {
+                    batch_input: [
+                        {
+                            input: text,
+                        },
+                        {
+                            input: text,
+                        },
+                    ],
+                })
+                .then((res) => res.data.batch_results);
+
+            expect(signatures[0].error).toBeUndefined();
+            expect(signatures[1].error).toBeUndefined();
+
+            expect(signatures[0].signature).toBeDefined();
+            expect(signatures[1].signature).toBeDefined();
+
+            const verifications = await client
+                .verify("test_sign", {
+                    batch_input: [
+                        {
+                            input: text,
+                            signature: signatures[0].signature ? signatures[0].signature.toString() : "false_signature",
+                        },
+                        {
+                            input: text,
+                            signature: "false_signature",
+                        },
+                    ],
+                })
+                .then((res) => res.data.batch_results);
+
+            expect(verifications[0].valid).toBe(true);
+            expect(verifications[1].valid).toBe(false);
+        });
+
+        test("should respond with 404 if the keyID for signing does not exist", async () => {
+            const text = Buffer.from("404test").toString("base64");
+            try {
+                await client.sign("unknownkey", { input: text });
+            } catch (err) {
+                expect(err).toBeInstanceOf(VaultDecryptionKeyNotFoundError);
+            }
+        });
+
+        test("should respond with 404 if the keyID for signing does not exist (batch)", async () => {
+            const text = Buffer.from("404test").toString("base64");
+            try {
+                await client.sign("unknownkey", {
+                    batch_input: [
+                        {
+                            input: text,
+                        },
+                        {
+                            input: text,
+                        },
+                    ],
+                });
+            } catch (err) {
+                expect(err).toBeInstanceOf(VaultDecryptionKeyNotFoundError);
+            }
+        });
     });
 });
