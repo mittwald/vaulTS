@@ -18,6 +18,6 @@ describe("URL Resolve", () => {
 
     test("URL Resolve fails with invalid URL", () => {
         const resolveWrap = () => resolveURL("ht/example", "/test///", "////foo/baz/lul", "/bar///");
-        expect(resolveWrap).toThrowError(new TypeError("Invalid URL: ht/example/test/foo/baz/lul/bar"));
+        expect(resolveWrap).toThrowError(new RegExp("Invalid URL.*"));
     });
 });

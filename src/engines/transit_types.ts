@@ -1,4 +1,16 @@
 export type ITransitKeyType = "aes256-gcm96" | "chacha20-poly1305" | "d25519" | "ecdsa-p256" | "rsa-2048" | "rsa-4096";
+export type ITransitSignHashAlgorithm =
+    | "sha1"
+    | "sha2-224"
+    | "sha2-256"
+    | "sha2-384"
+    | "sha2-512"
+    | "sha3-224"
+    | "sha3-256"
+    | "sha3-384"
+    | "sha3-512";
+export type ITransitSignSignatureAlgorithm = "pss" | "pkcs1v15";
+export type ITransitSignMarshalingAlgorithm = "asn1" | "jws";
 
 export type ITransitBatchPlaintext = Array<{
     plaintext: string;
@@ -11,6 +23,25 @@ export type ITransitRawBatchPlaintext = Array<{
 export type ITransitBatchCiphertext = Array<{
     ciphertext: string;
     context?: string;
+}>;
+export type ITransitSignBatchInput = Array<{
+    input: string;
+    context?: string;
+}>;
+export type ITransitVerifyBatchInputSignature = Array<{
+    input: string;
+    signature: string;
+    context?: string;
+}>;
+export type ITransitVerifyBatchInputHMAC = Array<{
+    input: string;
+    hmac: string;
+    context?: string;
+}>;
+export type ITransitSignBatchOutput = Array<{
+    signature?: string;
+    publickey?: string;
+    error?: string;
 }>;
 
 export interface ITransitCreateOptions {
@@ -125,5 +156,65 @@ export interface ITransitDecryptResponseBatch {
 export interface ITransitDecryptRawResponseBatch {
     data: {
         batch_results: ITransitRawBatchPlaintext;
+    };
+}
+
+export interface ITransitSignOptionsSingle {
+    key_version?: number;
+    hash_algorithm?: ITransitSignHashAlgorithm;
+    input: string;
+    context?: string;
+    prehashed?: boolean;
+    signature_algorithm?: ITransitSignSignatureAlgorithm;
+    marshaling_algorithm?: ITransitSignMarshalingAlgorithm;
+}
+export interface ITransitSignOptionsBatch {
+    key_version?: number;
+    hash_algorithm?: ITransitSignHashAlgorithm;
+    batch_input: ITransitSignBatchInput;
+    prehashed?: boolean;
+    signature_algorithm?: ITransitSignSignatureAlgorithm;
+    marshaling_algorithm?: ITransitSignMarshalingAlgorithm;
+}
+
+export interface ITransitSignResponseSingle {
+    data: {
+        signature: string | undefined;
+    };
+}
+export interface ITransitSignResponseBatch {
+    data: {
+        batch_results: ITransitSignBatchOutput;
+    };
+}
+
+export interface ITransitVerifyOptionsSingle {
+    input: string;
+    signature?: string;
+    hmac?: string;
+    hash_algorithm?: ITransitSignHashAlgorithm;
+    context?: string;
+    prehashed?: boolean;
+    signature_algorithm?: ITransitSignSignatureAlgorithm;
+    marshaling_algorithm?: ITransitSignMarshalingAlgorithm;
+}
+export interface ITransitVerifyOptionsBatch {
+    batch_input: ITransitVerifyBatchInputSignature | ITransitVerifyBatchInputHMAC;
+    hash_algorithm?: ITransitSignHashAlgorithm;
+    prehashed?: boolean;
+    signature_algorithm?: ITransitSignSignatureAlgorithm;
+    marshaling_algorithm?: ITransitSignMarshalingAlgorithm;
+}
+
+export interface ITransitVerifyResponseSingle {
+    data: {
+        valid: boolean;
+    };
+}
+export interface ITransitVerifyResponseBatch {
+    data: {
+        batch_results: Array<{
+            valid: boolean;
+        }>;
     };
 }
