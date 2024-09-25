@@ -11,7 +11,7 @@ jobs:
         env:
           VAULT_DEV_ROOT_TOKEN_ID: "test"
     steps:
-      - uses: actions/checkout@2.5.0
+      - uses: actions/checkout@v2.5.0
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v1
         with:
