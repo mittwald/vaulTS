@@ -7,7 +7,7 @@ jobs:
     container: node:12
     services:
       vault:
-        image: vault
+        image: vault:1.17
         env:
           VAULT_DEV_ROOT_TOKEN_ID: "test"
     steps:
