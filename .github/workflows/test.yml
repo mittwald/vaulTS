@@ -7,7 +7,7 @@ jobs:
     container: node:12
     services:
       vault:
-        image: vault:1.17
+        image: hashicorp/vault
         env:
           VAULT_DEV_ROOT_TOKEN_ID: "test"
     steps:
