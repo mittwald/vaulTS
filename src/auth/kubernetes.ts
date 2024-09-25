@@ -55,7 +55,7 @@ export class VaultKubernetesAuthClient extends AbstractVaultClient implements IV
         if (!this.config) {
             throw new Error("Kubernetes Auth Client not configured");
         }
-        const jwt = fs.readFileSync(this.config.jwt_path ?? "/run/secrets/kubernetes.io/serviceaccount/token", "utf8");
+        const jwt = fs.readFileSync(this.config.jwt_path ?? "/var/run/secrets/kubernetes.io/serviceaccount/token", "utf8");
         return jwt;
     }
 }
