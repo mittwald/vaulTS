@@ -3,19 +3,19 @@ on:
   pull_request:
 jobs:
   test:
-    runs-on: ubuntu-latest
-    container: node:12
+    runs-on: ubuntu-22.04
+    container: node:20
     services:
       vault:
-        image: vault
+        image: vault:1.13.3
         env:
           VAULT_DEV_ROOT_TOKEN_ID: "test"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v1
       # Setup .npmrc file to publish to npm
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          node-version: "12.x"
+          node-version: "20.x"
           registry-url: "https://npm.pkg.github.com"
           # Defaults to the user or organization that owns the workflow file
           scope: "@mittwald"
