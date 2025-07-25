@@ -93,6 +93,12 @@ describe("Transit Vault Client", () => {
                     plaintext: "",
                 },
             ];
+            const expectedOutput = input.map((entry) => {
+                return {
+                    ...entry,
+                    reference: "",
+                };
+            });
 
             const result = await client
                 .encrypt("test", {
@@ -108,7 +114,7 @@ describe("Transit Vault Client", () => {
                 })
                 .then((res) => res.data.batch_results);
 
-            expect(res).toEqual(input);
+            expect(res).toEqual(expectedOutput);
         });
 
         test("successfully encrypt and decrypt simple plaintext", async () => {
