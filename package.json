@@ -39,7 +39,7 @@
   },
   "keywords": [],
   "dependencies": {
-    "request": "^2.88.0",
+    "request": "npm:@cypress/request@^3.0.9",
     "request-promise-native": "^1.0.9",
     "ts-interface-checker": "^1.0.2",
     "verror": "^1.10.0"
